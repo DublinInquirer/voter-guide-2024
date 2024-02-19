@@ -1,0 +1,26 @@
+---
+import Layout from "../layouts/Layout.astro";
+import electoralAreas from "../data/electoral-areas.json";
+---
+
+<Layout title="Voters' Agenda">
+  <main>
+    <h1>
+      What do the candidates for city council have to say about the issues that
+      matter to you?
+    </h1>
+    <p>
+      We asked our readers what they want candidates in the 2024 local elections
+      to discuss as they compete for votes, and then posed those questions to
+      the candidates. These are their responses.
+    </p>
+    Select an electora area
+    <select name="electoral-area">
+      {
+        electoralAreas.map((electoralArea) => (
+          <option value={electoralArea}>{electoralArea}</option>
+        ))
+      }
+    </select>
+  </main>
+</Layout>
