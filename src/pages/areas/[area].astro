@@ -1,0 +1,18 @@
+---
+import lodash from "lodash";
+import electoralAreas from "../../data/electoral-areas.json";
+export function getStaticPaths() {
+  return electoralAreas.map((electoralArea) => ({
+    params: {
+      area: lodash.kebabCase(electoralArea),
+    },
+    props: {
+      area: electoralArea,
+    },
+  }));
+}
+
+const { area } = Astro.props;
+---
+
+<div>{area}</div>
