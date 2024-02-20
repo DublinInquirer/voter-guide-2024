@@ -1,16 +1,38 @@
 ---
 import lodash from "lodash";
-import electoralAreas from "../../data/electoral-areas.json";
+import { google } from "googleapis";
+import { z } from "zod";
+
 import questions from "../../data/questions.json";
-export function getStaticPaths() {
-  return electoralAreas.map((electoralArea) => ({
-    params: {
-      area: lodash.kebabCase(electoralArea),
-    },
-    props: {
-      area: electoralArea,
-    },
-  }));
+import { authorize } from "../../google-api";
+
+export async function getStaticPaths() {
+  const electoralAreasSchema = z.array(z.string());
+  const auth = await authorize();
+  const sheets = google.sheets({ version: "v4", auth });
+  const electoralAreasResponse = await sheets.spreadsheets.values.get({
+    spreadsheetId: import.meta.env.SHEET_ID,
+    range: "areas!A1:A11",
+  });
+
+  const electoralAreasFromSheet =
+    electoralAreasResponse.data.values?.map((row) => row[0]) ?? [];
+
+  try {
+    const electoralAreas = electoralAreasSchema.parse(electoralAreasFromSheet);
+
+    return electoralAreas.map((electoralArea) => ({
+      params: {
+        area: lodash.kebabCase(electoralArea),
+      },
+      props: {
+        area: electoralArea,
+      },
+    }));
+  } catch (error) {
+    console.error(error);
+    return [];
+  }
 }
 
 const { area } = Astro.props;
