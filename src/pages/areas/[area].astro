@@ -8,6 +8,7 @@ import { authorize } from "../../google-api";
 export async function getStaticPaths() {
   const electoralAreasSchema = z.array(z.string());
   const questionsSchema = z.array(z.string());
+  const candidatesAnswersSchema = z.array(z.array(z.string()));
   const auth = await authorize();
   const sheets = google.sheets({ version: "v4", auth });
   const electoralAreasResponse = await sheets.spreadsheets.values.get({
@@ -26,19 +27,61 @@ export async function getStaticPaths() {
   const questionsFromSheet =
     questionsResponse.data.values?.map((row) => row[0]) ?? [];
 
+  const candidatesAnswersResponse = await sheets.spreadsheets.values.get({
+    spreadsheetId: import.meta.env.SHEET_ID,
+    range: "answers!A2:L",
+  });
+
+  const candidatesAnswersFromSheet =
+    candidatesAnswersResponse.data.values ?? [];
+
   try {
     const electoralAreas = electoralAreasSchema.parse(electoralAreasFromSheet);
-    const questions = questionsSchema.parse(questionsFromSheet);
+    const questionsList = questionsSchema.parse(questionsFromSheet);
+    const candidatesAnswers = candidatesAnswersSchema.parse(
+      candidatesAnswersFromSheet
+    );
 
-    return electoralAreas.map((electoralArea) => ({
-      params: {
-        area: lodash.kebabCase(electoralArea),
-      },
-      props: {
-        area: electoralArea,
-        questions,
-      },
-    }));
+    return electoralAreas.map((electoralArea) => {
+      const candidatesAnswersForArea = candidatesAnswers.filter(
+        (row) => row[1] === electoralArea
+      );
+      const answersListByCandidate = candidatesAnswersForArea
+        .map((row) => {
+          return {
+            candidateName: row[0],
+            answers: row.slice(2),
+          };
+        })
+        .reduce<Record<string, string[]>>((acc, { candidateName, answers }) => {
+          return {
+            ...acc,
+            [candidateName]: answers,
+          };
+        }, {});
+
+      const questions = questionsList.map((question, index) => {
+        return {
+          text: question,
+          answers: candidatesAnswersForArea.map((row) => {
+            return {
+              candidateName: row[0],
+              answer: answersListByCandidate[row[0]][index],
+            };
+          }),
+        };
+      });
+
+      return {
+        params: {
+          area: lodash.kebabCase(electoralArea),
+        },
+        props: {
+          area: electoralArea,
+          questions,
+        },
+      };
+    });
   } catch (error) {
     console.error(error);
     return [];
@@ -50,4 +93,16 @@ const { area, questions } = Astro.props;
 
 <h1>{area}</h1>
 
-{questions.map((question) => <h2>{question}</h2>)}
+{
+  questions.map((question) => (
+    <>
+      <h2>{question.text}</h2>
+      {question.answers.map((answer) => (
+        <>
+          <h3>{answer.candidateName}</h3>
+          <p>{answer.answer}</p>
+        </>
+      ))}
+    </>
+  ))
+}
