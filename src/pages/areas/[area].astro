@@ -3,11 +3,11 @@ import lodash from "lodash";
 import { google } from "googleapis";
 import { z } from "zod";
 
-import questions from "../../data/questions.json";
 import { authorize } from "../../google-api";
 
 export async function getStaticPaths() {
   const electoralAreasSchema = z.array(z.string());
+  const questionsSchema = z.array(z.string());
   const auth = await authorize();
   const sheets = google.sheets({ version: "v4", auth });
   const electoralAreasResponse = await sheets.spreadsheets.values.get({
@@ -18,8 +18,17 @@ export async function getStaticPaths() {
   const electoralAreasFromSheet =
     electoralAreasResponse.data.values?.map((row) => row[0]) ?? [];
 
+  const questionsResponse = await sheets.spreadsheets.values.get({
+    spreadsheetId: import.meta.env.SHEET_ID,
+    range: "questions!A1:A10",
+  });
+
+  const questionsFromSheet =
+    questionsResponse.data.values?.map((row) => row[0]) ?? [];
+
   try {
     const electoralAreas = electoralAreasSchema.parse(electoralAreasFromSheet);
+    const questions = questionsSchema.parse(questionsFromSheet);
 
     return electoralAreas.map((electoralArea) => ({
       params: {
@@ -27,6 +36,7 @@ export async function getStaticPaths() {
       },
       props: {
         area: electoralArea,
+        questions,
       },
     }));
   } catch (error) {
@@ -35,7 +45,7 @@ export async function getStaticPaths() {
   }
 }
 
-const { area } = Astro.props;
+const { area, questions } = Astro.props;
 ---
 
 <h1>{area}</h1>
