@@ -1,6 +1,7 @@
 ---
 import lodash from "lodash";
 import electoralAreas from "../../data/electoral-areas.json";
+import questions from "../../data/questions.json";
 export function getStaticPaths() {
   return electoralAreas.map((electoralArea) => ({
     params: {
@@ -15,4 +16,6 @@ export function getStaticPaths() {
 const { area } = Astro.props;
 ---
 
-<div>{area}</div>
+<h1>{area}</h1>
+
+{questions.map((question) => <h2>{question}</h2>)}
