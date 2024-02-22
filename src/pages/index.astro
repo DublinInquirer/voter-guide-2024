@@ -1,6 +1,20 @@
 ---
+import { google } from "googleapis";
+import { z } from "zod";
+
+import { authorize } from "../google-api";
 import Layout from "../layouts/Layout.astro";
-import electoralAreas from "../data/electoral-areas.json";
+
+const auth = await authorize();
+const sheets = google.sheets({ version: "v4", auth });
+const electoralAreasSchema = z.array(z.string());
+const electoralAreasResponse = await sheets.spreadsheets.values.get({
+  spreadsheetId: import.meta.env.SHEET_ID,
+  range: "areas!A1:A11",
+});
+const electoralAreasFromSheet =
+  electoralAreasResponse.data.values?.map((row) => row[0]) ?? [];
+const electoralAreas = electoralAreasSchema.parse(electoralAreasFromSheet);
 ---
 
 <Layout title="Voters' Agenda">
