@@ -113,6 +113,9 @@ const { candidate, questions } = Astro.props;
 ---
 
 <h1>{getCandidateFullName(candidate)}</h1>
+<h2>
+  <a href={`/areas/${lodash.kebabCase(candidate.area)}`}>{candidate.area}</a>
+</h2>
 
 {
   questions.map((question) => (
