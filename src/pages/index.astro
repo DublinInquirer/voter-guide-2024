@@ -1,4 +1,5 @@
 ---
+import lodash from "lodash";
 import { google } from "googleapis";
 import { z } from "zod";
 
@@ -30,11 +31,20 @@ const electoralAreas = electoralAreasSchema.parse(electoralAreasFromSheet);
     </p>
     Select an electora area
     <select name="electoral-area">
+      <option disabled selected>Choose your electoral area</option>
       {
         electoralAreas.map((electoralArea) => (
-          <option value={electoralArea}>{electoralArea}</option>
+          <option value={lodash.kebabCase(electoralArea)}>
+            {electoralArea}
+          </option>
         ))
       }
     </select>
   </main>
 </Layout>
+<script>
+  const selectElement = document.querySelector("select[name=electoral-area]");
+  selectElement?.addEventListener("change", (event) => {
+    window.location.href = `/areas/${(event.target as HTMLSelectElement).value}`;
+  });
+</script>
