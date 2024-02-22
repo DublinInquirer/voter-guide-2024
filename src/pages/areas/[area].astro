@@ -5,6 +5,7 @@ import { z } from "zod";
 
 import { authorize } from "../../google-api";
 import { getCandidateFullName } from "../../utils";
+import Layout from "../../layouts/Layout.astro";
 
 export async function getStaticPaths() {
   const electoralAreasSchema = z.array(z.string());
@@ -99,24 +100,26 @@ export async function getStaticPaths() {
 const { area, questions } = Astro.props;
 ---
 
-<h1>{area}</h1>
+<Layout>
+  <h1>{area}</h1>
 
-{
-  questions.map((question) => (
-    <>
-      <h2>{question.text}</h2>
-      {question.answers.map((answer) => (
-        <>
-          <h3>
-            <a
-              href={`/candidates/${lodash.kebabCase(answer.candidateFullName)}`}
-            >
-              {answer.candidateFullName}
-            </a>
-          </h3>
-          <p>{answer.answer}</p>
-        </>
-      ))}
-    </>
-  ))
-}
+  {
+    questions.map((question) => (
+      <>
+        <h2>{question.text}</h2>
+        {question.answers.map((answer) => (
+          <>
+            <h3>
+              <a
+                href={`/candidates/${lodash.kebabCase(answer.candidateFullName)}`}
+              >
+                {answer.candidateFullName}
+              </a>
+            </h3>
+            <p>{answer.answer}</p>
+          </>
+        ))}
+      </>
+    ))
+  }
+</Layout>
