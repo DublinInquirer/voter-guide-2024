@@ -6,6 +6,10 @@ import { z } from "zod";
 import { authorize } from "../../google-api";
 import { getCandidateFullName } from "../../utils";
 import Layout from "../../layouts/Layout.astro";
+import HeaderSection from "../../components/HeaderSection.astro";
+import HeaderTitle from "../../components/HeaderTitle.astro";
+import HeaderSubtitle from "../../components/HeaderSubtitle.astro";
+import QuestionText from "../../components/QuestionText.astro";
 
 export async function getStaticPaths() {
   const candidatesSchema = z.array(
@@ -114,19 +118,25 @@ const { candidate, questions } = Astro.props;
 ---
 
 <Layout>
-  <h1>{getCandidateFullName(candidate)}</h1>
-  <h2>
-    <a href={`/areas/${lodash.kebabCase(candidate.area)}`}>{candidate.area}</a>
-  </h2>
-
-  {
-    questions.map((question) => (
-      <>
-        <h2>{question.text}</h2>
-        {question.answers.map((answer) => (
-          <p>{answer.answer}</p>
-        ))}
-      </>
-    ))
-  }
+  <HeaderSection>
+    <HeaderTitle>{getCandidateFullName(candidate)}</HeaderTitle>
+    <HeaderSubtitle>
+      Candidate for <a
+        href={`/areas/${lodash.kebabCase(candidate.area)}`}
+        class="underline">{candidate.area}</a
+      >
+    </HeaderSubtitle>
+  </HeaderSection>
+  <main class="px-gutter">
+    {
+      questions.map((question) => (
+        <>
+          <QuestionText>{question.text}</QuestionText>
+          {question.answers.map((answer) => (
+            <p class="pb-2">{answer.answer}</p>
+          ))}
+        </>
+      ))
+    }
+  </main>
 </Layout>

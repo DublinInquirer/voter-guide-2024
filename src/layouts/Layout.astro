@@ -13,11 +13,31 @@ const { title = `Voters' Agenda` } = Astro.props;
     <meta name="description" content="Astro description" />
     <meta name="viewport" content="width=device-width" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Noto+Serif:ital,wght@0,100..900;1,100..900&display=swap"
+      rel="stylesheet"
+    />
     <meta name="generator" content={Astro.generator} />
     <title>{title}</title>
   </head>
-  <body>
-    <a href="/">Home</a>
+  <body
+    class="font-body text-dublin-inquirer-foreground bg-dublin-inquirer-background"
+  >
+    <div class="px-gutter pt-4">
+      <a href="https://dublininquirer.com">
+        <img
+          class="w-96"
+          src="https://i0.wp.com/dublininquirer.com/wp-content/uploads/2023/03/Wide-Masthead-Logo_with-Fox-2.png?fit=3333%2C428&ssl=1"
+          alt="Dublin Inquirer"
+          decoding="async"
+          fetchpriority="high"
+          srcset="https://i0.wp.com/dublininquirer.com/wp-content/uploads/2023/03/Wide-Masthead-Logo_with-Fox-2.png?w=3333&ssl=1 3333w, https://i0.wp.com/dublininquirer.com/wp-content/uploads/2023/03/Wide-Masthead-Logo_with-Fox-2.png?resize=300%2C39&ssl=1 300w, https://i0.wp.com/dublininquirer.com/wp-content/uploads/2023/03/Wide-Masthead-Logo_with-Fox-2.png?resize=1024%2C131&ssl=1 1024w, https://i0.wp.com/dublininquirer.com/wp-content/uploads/2023/03/Wide-Masthead-Logo_with-Fox-2.png?resize=768%2C99&ssl=1 768w, https://i0.wp.com/dublininquirer.com/wp-content/uploads/2023/03/Wide-Masthead-Logo_with-Fox-2.png?resize=1536%2C197&ssl=1 1536w, https://i0.wp.com/dublininquirer.com/wp-content/uploads/2023/03/Wide-Masthead-Logo_with-Fox-2.png?resize=2048%2C263&ssl=1 2048w, https://i0.wp.com/dublininquirer.com/wp-content/uploads/2023/03/Wide-Masthead-Logo_with-Fox-2.png?resize=1200%2C154&ssl=1 1200w, https://i0.wp.com/dublininquirer.com/wp-content/uploads/2023/03/Wide-Masthead-Logo_with-Fox-2.png?resize=1568%2C201&ssl=1 1568w, https://i0.wp.com/dublininquirer.com/wp-content/uploads/2023/03/Wide-Masthead-Logo_with-Fox-2.png?resize=400%2C51&ssl=1 400w, https://i0.wp.com/dublininquirer.com/wp-content/uploads/2023/03/Wide-Masthead-Logo_with-Fox-2.png?resize=706%2C91&ssl=1 706w, https://i0.wp.com/dublininquirer.com/wp-content/uploads/2023/03/Wide-Masthead-Logo_with-Fox-2.png?w=2400&ssl=1 2400w, https://i0.wp.com/dublininquirer.com/wp-content/uploads/2023/03/Wide-Masthead-Logo_with-Fox-2.png?fit=3333%2C428&ssl=1&w=370 370w"
+          sizes="(max-width: 3333px) 100vw, 3333px"
+        />
+      </a>
+    </div>
     <slot />
   </body>
 </html>
