@@ -15,6 +15,16 @@ const SCOPES = ["https://www.googleapis.com/auth/spreadsheets.readonly"];
 const TOKEN_PATH = path.join(process.cwd(), "token.json");
 const CREDENTIALS_PATH = path.join(process.cwd(), "credentials.json");
 
+function loadSavedCredentialsFromEnvIfExist() {
+  try {
+    const content = import.meta.env.GOOGLE_API_CREDENTIALS;
+    const credentials = JSON.parse(content);
+    return google.auth.fromJSON(credentials) as Auth.OAuth2Client;
+  } catch (err) {
+    return null;
+  }
+}
+
 async function loadSavedCredentialsIfExist() {
   try {
     const content = await fs.readFile(TOKEN_PATH);
@@ -39,7 +49,11 @@ async function saveCredentials(client: Auth.OAuth2Client) {
 }
 
 export async function authorize() {
-  let client = await loadSavedCredentialsIfExist();
+  let client = loadSavedCredentialsFromEnvIfExist();
+  if (client) {
+    return client
+  }
+  client = await loadSavedCredentialsIfExist();
   if (client) {
     return client;
   }
