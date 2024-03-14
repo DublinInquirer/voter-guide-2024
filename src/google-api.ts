@@ -18,7 +18,7 @@ const CREDENTIALS_PATH = path.join(process.cwd(), "credentials.json");
 function loadSavedCredentialsFromEnvIfExist() {
   try {
     const content = import.meta.env.GOOGLE_API_CREDENTIALS;
-    console.log(content)
+    console.log({'import.meta.env.BUILD_PATH': import.meta.env.BUILD_PATH})
     const credentials = JSON.parse(content);
     return google.auth.fromJSON(credentials) as Auth.OAuth2Client;
   } catch (err) {
