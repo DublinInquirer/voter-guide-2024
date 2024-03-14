@@ -21,6 +21,8 @@ function loadSavedCredentialsFromEnvIfExist() {
     const credentials = JSON.parse(content);
     return google.auth.fromJSON(credentials) as Auth.OAuth2Client;
   } catch (err) {
+    console.log('Failed to load saved credentials from env')
+    console.error(err)
     return null;
   }
 }
