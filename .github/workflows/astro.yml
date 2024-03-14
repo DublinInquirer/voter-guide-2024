@@ -28,6 +28,7 @@ env:
   BUILD_PATH: "." # default value when not using subfolders
   # BUILD_PATH: subfolder
   GOOGLE_API_CREDENTIALS: ${{ secrets.GOOGLE_API_CREDENTIALS }}
+  SHEET_ID: ${{ secrets.SHEET_ID }}
 
 jobs:
   build:
