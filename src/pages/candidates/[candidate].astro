@@ -122,7 +122,7 @@ const { candidate, questions } = Astro.props;
     <HeaderTitle>{getCandidateFullName(candidate)}</HeaderTitle>
     <HeaderSubtitle>
       Candidate for <a
-        href={`/areas/${lodash.kebabCase(candidate.area)}`}
+        href={`${import.meta.env.BASE_URL}/areas/${lodash.kebabCase(candidate.area)}`}
         class="underline">{candidate.area}</a
       >
     </HeaderSubtitle>

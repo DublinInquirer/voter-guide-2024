@@ -49,6 +49,6 @@ const electoralAreas = electoralAreasSchema.parse(electoralAreasFromSheet);
 <script>
   const selectElement = document.querySelector("select[name=electoral-area]");
   selectElement?.addEventListener("change", (event) => {
-    window.location.href = `/areas/${(event.target as HTMLSelectElement).value}`;
+    window.location.href = `${import.meta.env.BASE_URL}/areas/${(event.target as HTMLSelectElement).value}`;
   });
 </script>

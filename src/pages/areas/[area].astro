@@ -116,7 +116,7 @@ const { area, questions } = Astro.props;
             <>
               <h3>
                 <a
-                  href={`/candidates/${lodash.kebabCase(answer.candidateFullName)}`}
+                  href={`${import.meta.env.BASE_URL}/candidates/${lodash.kebabCase(answer.candidateFullName)}`}
                 >
                   {answer.candidateFullName}
                 </a>
