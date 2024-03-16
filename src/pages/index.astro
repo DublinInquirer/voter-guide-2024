@@ -3,6 +3,7 @@ import lodash from "lodash";
 import { google } from "googleapis";
 import { z } from "zod";
 
+import { getCandidateFullName } from "../utils";
 import { authorize } from "../google-api";
 import Layout from "../layouts/Layout.astro";
 import Link from "../components/Link.astro";
@@ -17,6 +18,37 @@ const electoralAreasResponse = await sheets.spreadsheets.values.get({
 const electoralAreasFromSheet =
   electoralAreasResponse.data.values?.map((row) => row[0]) ?? [];
 const electoralAreas = electoralAreasSchema.parse(electoralAreasFromSheet);
+
+const candidatesSchema = z.array(
+  z.object({
+    firstname: z.string(),
+    lastname: z.string(),
+    area: z.string(),
+  })
+);
+const candidatesResponse = await sheets.spreadsheets.values.get({
+  spreadsheetId: import.meta.env.SHEET_ID,
+  range: "candidates!A2:C",
+});
+const candidatesFromSheet =
+  candidatesResponse.data.values?.map(([firstname, lastname, area]) => ({
+    firstname,
+    lastname,
+    area,
+  })) ?? [];
+const candidates = candidatesSchema.parse(candidatesFromSheet);
+const candidatesByArea = candidates.reduce<Record<string, typeof candidates>>(
+  (acc, candidate) => {
+    const candidatesInArea = acc[candidate.area]
+      ? [...acc[candidate.area], candidate]
+      : [candidate];
+    return {
+      ...acc,
+      [candidate.area]: candidatesInArea,
+    };
+  },
+  {}
+);
 ---
 
 <Layout>
@@ -45,7 +77,34 @@ const electoralAreas = electoralAreasSchema.parse(electoralAreasFromSheet);
       }
     </select>
   </header>
-  <main></main>
+  <main class="px-gutter">
+    {
+      electoralAreas.map((electoralArea) => {
+        return (
+          <>
+            <div>
+              <p>{electoralArea}</p>
+            </div>
+            <div class="flex flex-wrap">
+              {candidatesByArea[electoralArea]?.map((candidate) => (
+                <div class="p-1">
+                  <Link
+                    to={`candidates/${lodash.kebabCase(getCandidateFullName(candidate))}`}
+                  >
+                    <img src="https://picsum.photos/64" class="rounded-full" />
+                    <p class="text-xs text-center w-16">
+                      {getCandidateFullName(candidate)}
+                    </p>
+                  </Link>
+                </div>
+              ))}
+            </div>
+            <hr />
+          </>
+        );
+      })
+    }
+  </main>
 </Layout>
 <script>
   const selectElement = document.querySelector("select[name=electoral-area]");
