@@ -123,9 +123,9 @@ const { candidate, questions } = Astro.props;
     <HeaderTitle>{getCandidateFullName(candidate)}</HeaderTitle>
     <HeaderSubtitle>
       Candidate for
-      <Link target={`areas/${lodash.kebabCase(candidate.area)}`}
-        >{candidate.area}</Link
-      >
+      <Link to={`areas/${lodash.kebabCase(candidate.area)}`}>
+        {candidate.area}
+      </Link>
     </HeaderSubtitle>
   </HeaderSection>
   <main class="px-gutter">

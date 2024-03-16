@@ -5,6 +5,7 @@ import { z } from "zod";
 
 import { authorize } from "../google-api";
 import Layout from "../layouts/Layout.astro";
+import Link from "../components/Link.astro";
 
 const auth = await authorize();
 const sheets = google.sheets({ version: "v4", auth });
@@ -20,14 +21,18 @@ const electoralAreas = electoralAreasSchema.parse(electoralAreasFromSheet);
 
 <Layout>
   <header class="p-8">
-    <h1 class="text-6xl pb-4">
-      What do the candidates for city council have to say about the issues that
-      matter to you?
-    </h1>
-    <h2 class="text-2xl pb-4">
-      We asked our readers what they want candidates in the 2024 local elections
-      to discuss as they compete for votes, and then posed those questions to
-      the candidates. These are their responses.
+    <h1 class="text-2xl pb-4">2024 Local Elections Voter Guide</h1>
+    <h2 class="pb-4">
+      We
+      <Link
+        href="https://dublininquirer.com/2024/03/13/here-are-the-issues-people-say-they-want-us-to-ask-local-election-candidates-about/"
+        target="_blank"
+      >
+        asked Dubliners
+      </Link>
+      what they want candidates in the 2024 local elections to talk about as they
+      compete for votes, and then posed those questions to the candidates running
+      seats on Dublin City Council and Fingal County Council. These are their responses.
     </h2>
     <label>Select an electoral area</label>
     <select

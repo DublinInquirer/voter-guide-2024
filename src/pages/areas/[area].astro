@@ -117,7 +117,7 @@ const { area, questions } = Astro.props;
             <>
               <h3>
                 <Link
-                  target={`candidates/${lodash.kebabCase(answer.candidateFullName)}`}
+                  to={`candidates/${lodash.kebabCase(answer.candidateFullName)}`}
                 >
                   {answer.candidateFullName}
                 </Link>
