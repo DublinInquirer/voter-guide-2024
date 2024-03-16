@@ -10,6 +10,7 @@ import HeaderSection from "../../components/HeaderSection.astro";
 import HeaderTitle from "../../components/HeaderTitle.astro";
 import HeaderSubtitle from "../../components/HeaderSubtitle.astro";
 import QuestionText from "../../components/QuestionText.astro";
+import Link from "../../components/Link.astro";
 
 export async function getStaticPaths() {
   const candidatesSchema = z.array(
@@ -121,9 +122,9 @@ const { candidate, questions } = Astro.props;
   <HeaderSection>
     <HeaderTitle>{getCandidateFullName(candidate)}</HeaderTitle>
     <HeaderSubtitle>
-      Candidate for <a
-        href={`${import.meta.env.BASE_URL}/areas/${lodash.kebabCase(candidate.area)}`}
-        class="underline">{candidate.area}</a
+      Candidate for
+      <Link target={`areas/${lodash.kebabCase(candidate.area)}`}
+        >{candidate.area}</Link
       >
     </HeaderSubtitle>
   </HeaderSection>

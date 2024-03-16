@@ -9,6 +9,7 @@ import Layout from "../../layouts/Layout.astro";
 import HeaderSection from "../../components/HeaderSection.astro";
 import HeaderTitle from "../../components/HeaderTitle.astro";
 import QuestionText from "../../components/QuestionText.astro";
+import Link from "../../components/Link.astro";
 
 export async function getStaticPaths() {
   const electoralAreasSchema = z.array(z.string());
@@ -115,11 +116,11 @@ const { area, questions } = Astro.props;
           {question.answers.map((answer) => (
             <>
               <h3>
-                <a
-                  href={`${import.meta.env.BASE_URL}/candidates/${lodash.kebabCase(answer.candidateFullName)}`}
+                <Link
+                  target={`candidates/${lodash.kebabCase(answer.candidateFullName)}`}
                 >
                   {answer.candidateFullName}
-                </a>
+                </Link>
               </h3>
               <p>{answer.answer}</p>
             </>
