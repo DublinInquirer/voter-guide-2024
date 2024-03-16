@@ -20,24 +20,20 @@ const electoralAreas = electoralAreasSchema.parse(electoralAreasFromSheet);
 ---
 
 <Layout>
-  <header class="p-8">
-    <h1 class="text-2xl pb-4">2024 Local Elections Voter Guide</h1>
+  <header class="pt-2 pb-8 px-gutter">
     <h2 class="pb-4">
       We
       <Link
         href="https://dublininquirer.com/2024/03/13/here-are-the-issues-people-say-they-want-us-to-ask-local-election-candidates-about/"
-        target="_blank"
+        target="_blank">asked Dubliners</Link
       >
-        asked Dubliners
-      </Link>
       what they want candidates in the 2024 local elections to talk about as they
       compete for votes, and then posed those questions to the candidates running
       seats on Dublin City Council and Fingal County Council. These are their responses.
     </h2>
-    <label>Select an electoral area</label>
     <select
       name="electoral-area"
-      class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg p-2"
+      class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg p-2 block w-full"
     >
       <option disabled selected>Choose your electoral area</option>
       {
