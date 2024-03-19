@@ -75,32 +75,41 @@ const candidatesByArea = candidates.reduce<Record<string, typeof candidates>>(
       compete for votes, and then posed those questions to the candidates running
       seats on Dublin City Council and Fingal County Council. These are their responses.
     </h2>
-    <select
-      name="electoral-area"
-      class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg p-2 block w-full"
-    >
-      <option disabled selected>Choose your electoral area</option>
-      <option disabled>Dublin City Council</option>
-      {
-        dccElectoralAreaNames.map((electoralAreaName) => (
-          <option
-            value={`dublin-city-council/${lodash.kebabCase(electoralAreaName)}`}
-          >
-            {electoralAreaName}
-          </option>
-        ))
-      }
-      <option disabled>Fingal County Council</option>
-      {
-        fingalElectoralAreaNames.map((electoralAreaName) => (
-          <option
-            value={`fingal-county-council/${lodash.kebabCase(electoralAreaName)}`}
-          >
-            {electoralAreaName}
-          </option>
-        ))
-      }
-    </select>
+    <div class="pb-2">
+      <select
+        name="electoral-area"
+        class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg p-2 block w-full"
+      >
+        <option disabled selected>Choose your electoral area</option>
+        <option disabled>Dublin City Council</option>
+        {
+          dccElectoralAreaNames.map((electoralAreaName) => (
+            <option
+              value={`dublin-city-council/${lodash.kebabCase(electoralAreaName)}`}
+            >
+              {electoralAreaName}
+            </option>
+          ))
+        }
+        <option disabled>Fingal County Council</option>
+        {
+          fingalElectoralAreaNames.map((electoralAreaName) => (
+            <option
+              value={`fingal-county-council/${lodash.kebabCase(electoralAreaName)}`}
+            >
+              {electoralAreaName}
+            </option>
+          ))
+        }
+      </select>
+    </div>
+    <p>
+      If you don't know which local electoral area you live in, you can enter
+      your address into this <Link
+        href="https://urschrei.github.io/irish_electoral_divisions/"
+        target="_blank">tool</Link
+      > to find out.
+    </p>
   </header>
   <main class="px-gutter">
     <h1 class="font-bold text-2xl">Dublin City Council</h1>
