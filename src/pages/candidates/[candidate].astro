@@ -1,10 +1,12 @@
 ---
+import { type Record as AirtableRecord, type FieldSet } from "airtable";
 import lodash from "lodash";
-import { google } from "googleapis";
-import { z } from "zod";
 
-import { authorize } from "../../google-api";
-import { getCandidateFullName } from "../../utils";
+import {
+  airtableClient,
+  getLookupFieldValue,
+  getStringFieldValue,
+} from "../../airtable-api";
 import Layout from "../../layouts/Layout.astro";
 import HeaderSection from "../../components/HeaderSection.astro";
 import HeaderTitle from "../../components/HeaderTitle.astro";
@@ -13,118 +15,113 @@ import QuestionText from "../../components/QuestionText.astro";
 import Link from "../../components/Link.astro";
 
 export async function getStaticPaths() {
-  const candidatesSchema = z.array(
-    z.object({
-      firstname: z.string(),
-      lastname: z.string(),
-      area: z.string(),
+  const candidates = await airtableClient("Candidates")
+    .select({
+      view: "Grid view",
     })
+    .all();
+
+  const questions = await airtableClient("Questions")
+    .select({
+      view: "Grid view",
+    })
+    .all();
+
+  const questionsList = questions.map((record) =>
+    getStringFieldValue(record, "Text")
   );
-  const questionsSchema = z.array(z.string());
-  const candidatesAnswersSchema = z.array(z.array(z.string()));
-  const auth = await authorize();
-  const sheets = google.sheets({ version: "v4", auth });
-  const candidatesResponse = await sheets.spreadsheets.values.get({
-    spreadsheetId: import.meta.env.SHEET_ID,
-    range: "candidates!A2:C",
-  });
 
-  const candidatesFromSheet =
-    candidatesResponse.data.values?.map(([firstname, lastname, area]) => ({
-      firstname,
-      lastname,
-      area,
-    })) ?? [];
+  const candidatesAnswers = await airtableClient("Answers")
+    .select({
+      view: "Grid view",
+    })
+    .all();
 
-  const questionsResponse = await sheets.spreadsheets.values.get({
-    spreadsheetId: import.meta.env.SHEET_ID,
-    range: "questions!A1:A10",
-  });
-
-  const questionsFromSheet =
-    questionsResponse.data.values?.map((row) => row[0]) ?? [];
-
-  const candidatesAnswersResponse = await sheets.spreadsheets.values.get({
-    spreadsheetId: import.meta.env.SHEET_ID,
-    range: "answers!A2:M",
-  });
-
-  const candidatesAnswersFromSheet =
-    candidatesAnswersResponse.data.values ?? [];
-
-  try {
-    const candidates = candidatesSchema.parse(candidatesFromSheet);
-    const questionsList = questionsSchema.parse(questionsFromSheet);
-    const candidatesAnswers = candidatesAnswersSchema.parse(
-      candidatesAnswersFromSheet
+  return candidates.map((candidateRecord) => {
+    const candidateFullName = getStringFieldValue(candidateRecord, "Full name");
+    const candidateAreaName = getLookupFieldValue(candidateRecord, "Area name");
+    const candidateAreaLocalAuthorityName = getLookupFieldValue(
+      candidateRecord,
+      "Area local authority name"
+    );
+    const candidatesAnswersForArea = candidatesAnswers.filter(
+      (answerRecord) =>
+        getLookupFieldValue(answerRecord, "Candidate") === candidateRecord.id
     );
 
-    return candidates.map((candidate) => {
-      const candidatesAnswersForArea = candidatesAnswers.filter(
-        (row) =>
-          row[0] === candidate.firstname &&
-          row[1] === candidate.lastname &&
-          row[2] === candidate.area
+    const answersListByCandidate = candidatesAnswersForArea.reduce<
+      Record<string, AirtableRecord<FieldSet>[]>
+    >((acc, answerRecord) => {
+      const candidateFullName = getLookupFieldValue(
+        answerRecord,
+        "Candidate full name"
       );
-      const answersListByCandidate = candidatesAnswersForArea
-        .map((row) => {
-          return {
-            candidate: {
-              firstname: row[0],
-              lastname: row[1],
-            },
-            answers: row.slice(3),
-          };
-        })
-        .reduce<Record<string, string[]>>((acc, { candidate, answers }) => {
-          return {
-            ...acc,
-            [getCandidateFullName(candidate)]: answers,
-          };
-        }, {});
-
-      const questions = questionsList.map((question, index) => {
-        return {
-          text: question,
-          answers: candidatesAnswersForArea.map((row) => {
-            const candidateFullName = getCandidateFullName({
-              firstname: row[0],
-              lastname: row[1],
-            });
-            return {
-              candidateFullName,
-              answer: answersListByCandidate[candidateFullName][index],
-            };
-          }),
-        };
-      });
-
+      const candidateAnswers = candidatesAnswersForArea.filter(
+        (candidatesAnswersForAreaRecord) =>
+          getLookupFieldValue(
+            candidatesAnswersForAreaRecord,
+            "Candidate full name"
+          ) === candidateFullName
+      );
       return {
-        params: {
-          candidate: lodash.kebabCase(getCandidateFullName(candidate)),
-        },
-        props: {
-          candidate,
-          questions,
-        },
+        ...acc,
+        [candidateFullName]: candidateAnswers,
+      };
+    }, {});
+
+    const questions = questionsList.map((question, index) => {
+      return {
+        text: question,
+        answers: candidatesAnswersForArea.map((answerRecord) => {
+          const candidateFullName = getLookupFieldValue(
+            answerRecord,
+            "Candidate full name"
+          );
+          const answer =
+            answersListByCandidate[candidateFullName][index] &&
+            getStringFieldValue(
+              answersListByCandidate[candidateFullName][index],
+              "Text"
+            );
+          return {
+            candidateFullName,
+            answer,
+          };
+        }),
       };
     });
-  } catch (error) {
-    console.error(error);
-    return [];
-  }
+
+    return {
+      params: {
+        candidate: lodash.kebabCase(candidateFullName),
+      },
+      props: {
+        candidateFullName,
+        candidateAreaName,
+        candidateAreaLocalAuthorityName,
+        questions,
+      },
+    };
+  });
 }
 
-const { candidate, questions } = Astro.props;
+const {
+  candidateFullName,
+  candidateAreaName,
+  candidateAreaLocalAuthorityName,
+  questions,
+} = Astro.props;
 ---
 
 <Layout>
   <HeaderSection>
-    <HeaderTitle>{getCandidateFullName(candidate)}</HeaderTitle>
+    <HeaderTitle>{candidateFullName}</HeaderTitle>
     <HeaderSubtitle>
       Candidate for
-      <Link to={`areas/${lodash.kebabCase(candidate.area)}`}>
-        {candidate.area}
+      <Link
+        to={`areas/${lodash.kebabCase(candidateAreaLocalAuthorityName)}/${lodash.kebabCase(candidateAreaName)}`}
+      >
+        {candidateAreaName}
       </Link>
     </HeaderSubtitle>
   </HeaderSection>
