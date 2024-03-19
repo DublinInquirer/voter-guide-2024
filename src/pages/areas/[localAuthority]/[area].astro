@@ -20,15 +20,11 @@ export async function getStaticPaths() {
     })
     .all();
 
-  const questions = await airtableClient("Questions")
+  const questionRecords = await airtableClient("Questions")
     .select({
       view: "Grid view",
     })
     .all();
-
-  const questionsList = questions.map((record) =>
-    getStringFieldValue(record, "Text")
-  );
 
   const answers = await airtableClient("Answers")
     .select({
@@ -64,27 +60,34 @@ export async function getStaticPaths() {
       };
     }, {});
 
-    const questions = questionsList.map((question, index) => {
-      return {
-        text: question,
-        answers: candidatesAnswersForArea.map((answerRecord) => {
-          const candidateFullName = getLookupFieldValue(
-            answerRecord,
-            "Candidate full name"
-          );
-          const answer =
-            answersListByCandidate[candidateFullName][index] &&
-            getStringFieldValue(
-              answersListByCandidate[candidateFullName][index],
-              "Text"
+    const questions = questionRecords
+      .filter(
+        (questionRecord) =>
+          getLookupFieldValue(questionRecord, "Local authority name") ===
+          getLookupFieldValue(electoralAreaRecord, "Local Authority Name")
+      )
+      .map((questionRecord) => getStringFieldValue(questionRecord, "Text"))
+      .map((question, index) => {
+        return {
+          text: question,
+          answers: candidatesAnswersForArea.map((answerRecord) => {
+            const candidateFullName = getLookupFieldValue(
+              answerRecord,
+              "Candidate full name"
             );
-          return {
-            candidateFullName,
-            answer,
-          };
-        }),
-      };
-    });
+            const answer =
+              answersListByCandidate[candidateFullName][index] &&
+              getStringFieldValue(
+                answersListByCandidate[candidateFullName][index],
+                "Text"
+              );
+            return {
+              candidateFullName,
+              answer,
+            };
+          }),
+        };
+      });
 
     const hasAnswers = questions.some((question) =>
       question.answers.some((answer) => Boolean(answer.answer))
