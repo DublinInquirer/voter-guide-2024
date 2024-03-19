@@ -1,8 +1,5 @@
-// @ts-expect-error
 import fs from "node:fs/promises";
-// @ts-expect-error
 import path from "node:path";
-// @ts-expect-error
 import process from "node:process";
 import { authenticate } from "@google-cloud/local-auth";
 import { google, Auth } from "googleapis";
@@ -21,8 +18,8 @@ function loadSavedCredentialsFromEnvIfExist() {
     const credentials = JSON.parse(content);
     return google.auth.fromJSON(credentials) as Auth.OAuth2Client;
   } catch (err) {
-    console.log('Failed to load saved credentials from env')
-    console.error(err)
+    console.log("Failed to load saved credentials from env");
+    console.error(err);
     return null;
   }
 }
@@ -30,7 +27,7 @@ function loadSavedCredentialsFromEnvIfExist() {
 async function loadSavedCredentialsIfExist() {
   try {
     const content = await fs.readFile(TOKEN_PATH);
-    const credentials = JSON.parse(content);
+    const credentials = JSON.parse(content.toString());
     return google.auth.fromJSON(credentials) as Auth.OAuth2Client;
   } catch (err) {
     return null;
@@ -39,7 +36,7 @@ async function loadSavedCredentialsIfExist() {
 
 async function saveCredentials(client: Auth.OAuth2Client) {
   const content = await fs.readFile(CREDENTIALS_PATH);
-  const keys = JSON.parse(content);
+  const keys = JSON.parse(content.toString());
   const key = keys.installed || keys.web;
   const payload = JSON.stringify({
     type: "authorized_user",
@@ -53,7 +50,7 @@ async function saveCredentials(client: Auth.OAuth2Client) {
 export async function authorize() {
   let client = loadSavedCredentialsFromEnvIfExist();
   if (client) {
-    return client
+    return client;
   }
   client = await loadSavedCredentialsIfExist();
   if (client) {
