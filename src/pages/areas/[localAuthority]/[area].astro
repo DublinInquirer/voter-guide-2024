@@ -1,0 +1,132 @@
+---
+import { type Record as AirtableRecord, type FieldSet } from "airtable";
+import lodash from "lodash";
+
+import {
+  airtableClient,
+  getLookupFieldValue,
+  getStringFieldValue,
+} from "../../../airtable-api";
+import Layout from "../../../layouts/Layout.astro";
+import HeaderSection from "../../../components/HeaderSection.astro";
+import HeaderTitle from "../../../components/HeaderTitle.astro";
+import QuestionText from "../../../components/QuestionText.astro";
+import Link from "../../../components/Link.astro";
+
+export async function getStaticPaths() {
+  const electoralAreas = await airtableClient("Areas")
+    .select({
+      view: "Grid view",
+    })
+    .all();
+
+  const questions = await airtableClient("Questions")
+    .select({
+      view: "Grid view",
+    })
+    .all();
+
+  const questionsList = questions.map((record) =>
+    getStringFieldValue(record, "Text")
+  );
+
+  const answers = await airtableClient("Answers")
+    .select({
+      view: "Grid view",
+    })
+    .all();
+
+  return electoralAreas.map((electoralAreaRecord) => {
+    const electoralAreaName = getStringFieldValue(electoralAreaRecord, "Name");
+    const candidatesAnswersForArea = answers.filter(
+      (answerRecord) =>
+        getLookupFieldValue(answerRecord, "Candidate area name") ===
+        electoralAreaName
+    );
+
+    const answersListByCandidate = candidatesAnswersForArea.reduce<
+      Record<string, AirtableRecord<FieldSet>[]>
+    >((acc, answerRecord) => {
+      const candidateFullName = getLookupFieldValue(
+        answerRecord,
+        "Candidate full name"
+      );
+      const candidateAnswers = candidatesAnswersForArea.filter(
+        (candidatesAnswersForAreaRecord) =>
+          getLookupFieldValue(
+            candidatesAnswersForAreaRecord,
+            "Candidate full name"
+          ) === candidateFullName
+      );
+      return {
+        ...acc,
+        [candidateFullName]: candidateAnswers,
+      };
+    }, {});
+
+    const questions = questionsList.map((question, index) => {
+      return {
+        text: question,
+        answers: candidatesAnswersForArea.map((answerRecord) => {
+          const candidateFullName = getLookupFieldValue(
+            answerRecord,
+            "Candidate full name"
+          );
+          const answer =
+            answersListByCandidate[candidateFullName][index] &&
+            getStringFieldValue(
+              answersListByCandidate[candidateFullName][index],
+              "Text"
+            );
+          return {
+            candidateFullName,
+            answer,
+          };
+        }),
+      };
+    });
+
+    return {
+      params: {
+        localAuthority: lodash.kebabCase(
+          getLookupFieldValue(electoralAreaRecord, "Local Authority Name")
+        ),
+        area: lodash.kebabCase(electoralAreaName),
+      },
+      props: {
+        area: electoralAreaName,
+        questions,
+      },
+    };
+  });
+}
+
+const { area, questions } = Astro.props;
+---
+
+<Layout>
+  <HeaderSection>
+    <HeaderTitle>{area}</HeaderTitle>
+  </HeaderSection>
+  <main class="px-gutter">
+    {
+      questions.map((question) => (
+        <>
+          <QuestionText>{question.text}</QuestionText>
+          {question.answers.map((answer) => (
+            <>
+              <h3>
+                <Link
+                  to={`candidates/${lodash.kebabCase(answer.candidateFullName)}`}
+                >
+                  {answer.candidateFullName}
+                </Link>
+              </h3>
+              <p>{answer.answer}</p>
+            </>
+          ))}
+        </>
+      ))
+    }
+  </main>
+</Layout>

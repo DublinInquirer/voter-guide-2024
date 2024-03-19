@@ -82,7 +82,9 @@ const candidatesByArea = candidates.reduce<Record<string, typeof candidates>>(
       <option disabled>Dublin City Council</option>
       {
         dccElectoralAreaNames.map((electoralAreaName) => (
-          <option value={lodash.kebabCase(electoralAreaName)}>
+          <option
+            value={`dublin-city-council/${lodash.kebabCase(electoralAreaName)}`}
+          >
             {electoralAreaName}
           </option>
         ))
@@ -90,7 +92,9 @@ const candidatesByArea = candidates.reduce<Record<string, typeof candidates>>(
       <option disabled>Fingal County Council</option>
       {
         fingalElectoralAreaNames.map((electoralAreaName) => (
-          <option value={lodash.kebabCase(electoralAreaName)}>
+          <option
+            value={`fingal-county-council/${lodash.kebabCase(electoralAreaName)}`}
+          >
             {electoralAreaName}
           </option>
         ))
