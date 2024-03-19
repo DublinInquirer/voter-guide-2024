@@ -91,6 +91,10 @@ export async function getStaticPaths() {
       };
     });
 
+    const hasAnswers = questions.some((question) =>
+      question.answers.some((answer) => Boolean(answer.answer))
+    );
+
     return {
       params: {
         candidate: lodash.kebabCase(candidateFullName),
@@ -100,6 +104,7 @@ export async function getStaticPaths() {
         candidateAreaName,
         candidateAreaLocalAuthorityName,
         questions,
+        hasAnswers,
       },
     };
   });
@@ -110,6 +115,7 @@ const {
   candidateAreaName,
   candidateAreaLocalAuthorityName,
   questions,
+  hasAnswers,
 } = Astro.props;
 ---
 
@@ -127,14 +133,22 @@ const {
   </HeaderSection>
   <main class="px-gutter">
     {
-      questions.map((question) => (
-        <>
-          <QuestionText>{question.text}</QuestionText>
-          {question.answers.map((answer) => (
-            <p class="pb-2">{answer.answer}</p>
-          ))}
-        </>
-      ))
+      hasAnswers ? (
+        questions.map((question) => (
+          <>
+            <QuestionText>{question.text}</QuestionText>
+            {question.answers.map((answer) => (
+              <p class="pb-2">{answer.answer}</p>
+            ))}
+          </>
+        ))
+      ) : (
+        <p>
+          If you're a voter in this candidate's area and you'd like them to
+          answer these questions, please email them and tell them this:
+          &lt;placeholder-email@example.com&gt;.
+        </p>
+      )
     }
   </main>
 </Layout>
