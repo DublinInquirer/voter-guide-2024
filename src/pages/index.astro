@@ -8,6 +8,7 @@ import {
 } from "../airtable-api";
 import Layout from "../layouts/Layout.astro";
 import Link from "../components/Link.astro";
+import CandidateAvatar from "../components/CandidateAvatar.astro";
 
 const electoralAreas = await airtableClient("Areas")
   .select({
@@ -102,8 +103,15 @@ const candidatesByArea = candidates.reduce<Record<string, typeof candidates>>(
     </select>
   </header>
   <main class="px-gutter">
+    <h1 class="font-bold text-2xl">Dublin City Council</h1>
     {
-      electoralAreaNames.map((electoralAreaName) => {
+      dccElectoralAreaNames.map((electoralAreaName) => {
+        if (
+          !candidatesByArea[electoralAreaName] ||
+          candidatesByArea[electoralAreaName]?.length === 0
+        ) {
+          return null;
+        }
         return (
           <>
             <div>
@@ -116,19 +124,37 @@ const candidatesByArea = candidates.reduce<Record<string, typeof candidates>>(
                   "Full name"
                 );
                 return (
-                  <div class="p-1">
-                    <Link
-                      to={`candidates/${lodash.kebabCase(candidateFullName)}`}
-                    >
-                      <img
-                        src="https://picsum.photos/64"
-                        class="rounded-full"
-                      />
-                      <p class="text-xs text-center w-16">
-                        {candidateFullName}
-                      </p>
-                    </Link>
-                  </div>
+                  <CandidateAvatar candidateFullName={candidateFullName} />
+                );
+              })}
+            </div>
+            <hr />
+          </>
+        );
+      })
+    }
+    <h1 class="font-bold text-2xl">Fingal County Council</h1>
+    {
+      fingalElectoralAreaNames.map((electoralAreaName) => {
+        if (
+          !candidatesByArea[electoralAreaName] ||
+          candidatesByArea[electoralAreaName]?.length === 0
+        ) {
+          return null;
+        }
+        return (
+          <>
+            <div>
+              <p>{electoralAreaName}</p>
+            </div>
+            <div class="flex flex-wrap">
+              {candidatesByArea[electoralAreaName]?.map((candidate) => {
+                const candidateFullName = getStringFieldValue(
+                  candidate,
+                  "Full name"
+                );
+                return (
+                  <CandidateAvatar candidateFullName={candidateFullName} />
                 );
               })}
             </div>

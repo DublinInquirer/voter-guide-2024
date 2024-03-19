@@ -1,0 +1,20 @@
+---
+import lodash from "lodash";
+
+import Link from "./Link.astro";
+
+interface Props {
+  candidateFullName: string;
+}
+
+const { candidateFullName } = Astro.props;
+---
+
+<div class="p-1">
+  <Link to={`candidates/${lodash.kebabCase(candidateFullName)}`}>
+    <img src="https://picsum.photos/64" class="rounded-full" />
+    <p class="text-xs text-center w-16">
+      {candidateFullName}
+    </p>
+  </Link>
+</div>
