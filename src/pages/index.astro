@@ -1,50 +1,46 @@
 ---
 import lodash from "lodash";
-import { google } from "googleapis";
-import { z } from "zod";
 
-import { getCandidateFullName } from "../utils";
-import { authorize } from "../google-api";
+import { airtableClient } from "../airtable-api";
 import Layout from "../layouts/Layout.astro";
 import Link from "../components/Link.astro";
 
-const auth = await authorize();
-const sheets = google.sheets({ version: "v4", auth });
-const electoralAreasSchema = z.array(z.string());
-const electoralAreasResponse = await sheets.spreadsheets.values.get({
-  spreadsheetId: import.meta.env.SHEET_ID,
-  range: "areas!A1:A11",
-});
-const electoralAreasFromSheet =
-  electoralAreasResponse.data.values?.map((row) => row[0]) ?? [];
-const electoralAreas = electoralAreasSchema.parse(electoralAreasFromSheet);
-
-const candidatesSchema = z.array(
-  z.object({
-    firstname: z.string(),
-    lastname: z.string(),
-    area: z.string(),
+const electoralAreas = await airtableClient("Areas")
+  .select({
+    view: "Grid view",
   })
-);
-const candidatesResponse = await sheets.spreadsheets.values.get({
-  spreadsheetId: import.meta.env.SHEET_ID,
-  range: "candidates!A2:C",
+  .all();
+
+const dccElectoralAreas = electoralAreas.filter((electoralArea) => {
+  const localAuthorityNameCol = electoralArea.get("Local Authority Name");
+  if (Array.isArray(localAuthorityNameCol)) {
+    return localAuthorityNameCol[0] === "Dublin City Council";
+  }
 });
-const candidatesFromSheet =
-  candidatesResponse.data.values?.map(([firstname, lastname, area]) => ({
-    firstname,
-    lastname,
-    area,
-  })) ?? [];
-const candidates = candidatesSchema.parse(candidatesFromSheet);
+
+const fingalElectoralAreas = electoralAreas.filter((electoralArea) => {
+  const localAuthorityNameCol = electoralArea.get("Local Authority Name");
+  if (Array.isArray(localAuthorityNameCol)) {
+    return localAuthorityNameCol[0] === "Fingal County Council";
+  }
+});
+
+const candidates = await airtableClient("Candidates")
+  .select({
+    view: "Grid view",
+  })
+  .all();
+
 const candidatesByArea = candidates.reduce<Record<string, typeof candidates>>(
   (acc, candidate) => {
-    const candidatesInArea = acc[candidate.area]
-      ? [...acc[candidate.area], candidate]
+    const candidateAreaNameCol = candidate.get("Area name");
+    const candidateAreaName = (candidateAreaNameCol as string[])[0];
+    const candidatesInArea = acc[candidateAreaName]
+      ? [...acc[candidateAreaName], candidate]
       : [candidate];
     return {
       ...acc,
-      [candidate.area]: candidatesInArea,
+      [candidateAreaName]: candidatesInArea,
     };
   },
   {}
@@ -68,10 +64,23 @@ const candidatesByArea = candidates.reduce<Record<string, typeof candidates>>(
       class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg p-2 block w-full"
     >
       <option disabled selected>Choose your electoral area</option>
+      <option disabled>Dublin City Council</option>
       {
-        electoralAreas.map((electoralArea) => (
-          <option value={lodash.kebabCase(electoralArea)}>
-            {electoralArea}
+        dccElectoralAreas.map((electoralArea) => (
+          <option
+            value={lodash.kebabCase(electoralArea.get("Name")?.toString())}
+          >
+            {electoralArea.get("Name")}
+          </option>
+        ))
+      }
+      <option disabled>Fingal County Council</option>
+      {
+        fingalElectoralAreas.map((electoralArea) => (
+          <option
+            value={lodash.kebabCase(electoralArea.get("Name")?.toString())}
+          >
+            {electoralArea.get("Name")}
           </option>
         ))
       }
@@ -83,21 +92,26 @@ const candidatesByArea = candidates.reduce<Record<string, typeof candidates>>(
         return (
           <>
             <div>
-              <p>{electoralArea}</p>
+              <p>{electoralArea.get("Name")}</p>
             </div>
             <div class="flex flex-wrap">
-              {candidatesByArea[electoralArea]?.map((candidate) => (
-                <div class="p-1">
-                  <Link
-                    to={`candidates/${lodash.kebabCase(getCandidateFullName(candidate))}`}
-                  >
-                    <img src="https://picsum.photos/64" class="rounded-full" />
-                    <p class="text-xs text-center w-16">
-                      {getCandidateFullName(candidate)}
-                    </p>
-                  </Link>
-                </div>
-              ))}
+              {candidatesByArea[electoralArea.get("Name") as string]?.map(
+                (candidate) => (
+                  <div class="p-1">
+                    <Link
+                      to={`candidates/${lodash.kebabCase(candidate.get("Full name") as string)}`}
+                    >
+                      <img
+                        src="https://picsum.photos/64"
+                        class="rounded-full"
+                      />
+                      <p class="text-xs text-center w-16">
+                        {candidate.get("Full name")}
+                      </p>
+                    </Link>
+                  </div>
+                )
+              )}
             </div>
             <hr />
           </>
