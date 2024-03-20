@@ -1,0 +1,43 @@
+---
+import lodash from "lodash";
+
+interface Props {
+  dccElectoralAreaNames: string[];
+  fingalElectoralAreaNames: string[];
+}
+
+const { dccElectoralAreaNames, fingalElectoralAreaNames } = Astro.props;
+---
+
+<select
+  name="electoral-area"
+  class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg p-2 block w-full"
+>
+  <option disabled selected>Choose your electoral area</option>
+  <option disabled>Dublin City Council</option>
+  {
+    dccElectoralAreaNames.map((electoralAreaName) => (
+      <option
+        value={`dublin-city-council/${lodash.kebabCase(electoralAreaName)}`}
+      >
+        {electoralAreaName}
+      </option>
+    ))
+  }
+  <option disabled>Fingal County Council</option>
+  {
+    fingalElectoralAreaNames.map((electoralAreaName) => (
+      <option
+        value={`fingal-county-council/${lodash.kebabCase(electoralAreaName)}`}
+      >
+        {electoralAreaName}
+      </option>
+    ))
+  }
+</select>
+<script>
+  const selectElement = document.querySelector("select[name=electoral-area]");
+  selectElement?.addEventListener("change", (event) => {
+    window.location.href = `${import.meta.env.BASE_URL}/areas/${(event.target as HTMLSelectElement).value}`;
+  });
+</script>

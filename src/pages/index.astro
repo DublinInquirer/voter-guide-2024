@@ -9,6 +9,8 @@ import {
 import Layout from "../layouts/Layout.astro";
 import Link from "../components/Link.astro";
 import CandidateAvatar from "../components/CandidateAvatar.astro";
+import AreaSelector from "../components/AreaSelector.astro";
+import { getAreasByLocalAuthority } from "../utils";
 
 const electoralAreas = await airtableClient("Areas")
   .select({
@@ -16,31 +18,8 @@ const electoralAreas = await airtableClient("Areas")
   })
   .all();
 
-const electoralAreaNames = electoralAreas.map((record) =>
-  getStringFieldValue(record, "Name")
-);
-
-const dccElectoralAreaNames = electoralAreas
-  .filter((electoralArea) => {
-    const localAuthorityName = getLookupFieldValue(
-      electoralArea,
-      "Local Authority Name"
-    );
-
-    return localAuthorityName === "Dublin City Council";
-  })
-  .map((record) => getStringFieldValue(record, "Name"));
-
-const fingalElectoralAreaNames = electoralAreas
-  .filter((electoralArea) => {
-    const localAuthorityName = getLookupFieldValue(
-      electoralArea,
-      "Local Authority Name"
-    );
-
-    return localAuthorityName === "Fingal County Council";
-  })
-  .map((record) => getStringFieldValue(record, "Name"));
+const { dccElectoralAreaNames, fingalElectoralAreaNames } =
+  getAreasByLocalAuthority(electoralAreas);
 
 const candidates = await airtableClient("Candidates")
   .select({
@@ -76,32 +55,10 @@ const candidatesByArea = candidates.reduce<Record<string, typeof candidates>>(
       seats on Dublin City Council and Fingal County Council. These are their responses.
     </h2>
     <div class="pb-2">
-      <select
-        name="electoral-area"
-        class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg p-2 block w-full"
-      >
-        <option disabled selected>Choose your electoral area</option>
-        <option disabled>Dublin City Council</option>
-        {
-          dccElectoralAreaNames.map((electoralAreaName) => (
-            <option
-              value={`dublin-city-council/${lodash.kebabCase(electoralAreaName)}`}
-            >
-              {electoralAreaName}
-            </option>
-          ))
-        }
-        <option disabled>Fingal County Council</option>
-        {
-          fingalElectoralAreaNames.map((electoralAreaName) => (
-            <option
-              value={`fingal-county-council/${lodash.kebabCase(electoralAreaName)}`}
-            >
-              {electoralAreaName}
-            </option>
-          ))
-        }
-      </select>
+      <AreaSelector
+        dccElectoralAreaNames={dccElectoralAreaNames}
+        fingalElectoralAreaNames={fingalElectoralAreaNames}
+      />
     </div>
     <p>
       If you don't know which local electoral area you live in, you can enter
@@ -174,9 +131,3 @@ const candidatesByArea = candidates.reduce<Record<string, typeof candidates>>(
     }
   </main>
 </Layout>
-<script>
-  const selectElement = document.querySelector("select[name=electoral-area]");
-  selectElement?.addEventListener("change", (event) => {
-    window.location.href = `${import.meta.env.BASE_URL}/areas/${(event.target as HTMLSelectElement).value}`;
-  });
-</script>
