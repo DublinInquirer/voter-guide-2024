@@ -1,5 +1,4 @@
 ---
-import { type Record as AirtableRecord, type FieldSet } from "airtable";
 import lodash from "lodash";
 
 import {
@@ -39,31 +38,6 @@ export async function getStaticPaths() {
 
   return electoralAreas.map((electoralAreaRecord) => {
     const electoralAreaName = getStringFieldValue(electoralAreaRecord, "Name");
-    const candidatesAnswersForArea = answers.filter(
-      (answerRecord) =>
-        getLookupFieldValue(answerRecord, "Candidate area name") ===
-        electoralAreaName
-    );
-
-    const answersListByCandidate = candidatesAnswersForArea.reduce<
-      Record<string, AirtableRecord<FieldSet>[]>
-    >((acc, answerRecord) => {
-      const candidateFullName = getLookupFieldValue(
-        answerRecord,
-        "Candidate full name"
-      );
-      const candidateAnswers = candidatesAnswersForArea.filter(
-        (candidatesAnswersForAreaRecord) =>
-          getLookupFieldValue(
-            candidatesAnswersForAreaRecord,
-            "Candidate full name"
-          ) === candidateFullName
-      );
-      return {
-        ...acc,
-        [candidateFullName]: candidateAnswers,
-      };
-    }, {});
 
     const questions = questionRecords
       .filter(
@@ -71,21 +45,21 @@ export async function getStaticPaths() {
           getLookupFieldValue(questionRecord, "Local authority name") ===
           getLookupFieldValue(electoralAreaRecord, "Local Authority Name")
       )
-      .map((questionRecord) => getStringFieldValue(questionRecord, "Text"))
-      .map((question, index) => {
+      .map((questionRecord) => {
+        const answersForQuestion = answers.filter(
+          (answerRecord) =>
+            getLookupFieldValue(answerRecord, "Candidate area name") ===
+              electoralAreaName &&
+            answerRecord.get("Question")?.toString() === questionRecord.id
+        );
         return {
-          text: question,
-          answers: candidatesAnswersForArea.map((answerRecord) => {
+          text: getStringFieldValue(questionRecord, "Text"),
+          answers: answersForQuestion.map((answerRecord) => {
             const candidateFullName = getLookupFieldValue(
               answerRecord,
               "Candidate full name"
             );
-            const answer =
-              answersListByCandidate[candidateFullName][index] &&
-              getStringFieldValue(
-                answersListByCandidate[candidateFullName][index],
-                "Text"
-              );
+            const answer = getStringFieldValue(answerRecord, "Text");
             return {
               candidateFullName,
               answer,
