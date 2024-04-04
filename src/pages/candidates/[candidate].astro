@@ -1,5 +1,4 @@
 ---
-import { type Record as AirtableRecord, type FieldSet } from "airtable";
 import lodash from "lodash";
 
 import {
@@ -47,7 +46,7 @@ export async function getStaticPaths() {
           getLookupFieldValue(questionRecord, "Local authority name") ===
           getLookupFieldValue(candidateRecord, "Area local authority name")
       )
-      .map((questionRecord, index) => {
+      .map((questionRecord) => {
         const answerRecord = answerRecords.filter((answerRecord) => {
           return (
             getLookupFieldValue(answerRecord, "Candidate full name") ===
