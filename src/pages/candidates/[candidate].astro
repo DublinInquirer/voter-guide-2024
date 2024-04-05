@@ -1,5 +1,6 @@
 ---
 import lodash from "lodash";
+import { marked } from "marked";
 
 import {
   airtableClient,
@@ -106,7 +107,10 @@ const {
         questions.map((question) => (
           <>
             <QuestionText>{question.text}</QuestionText>
-            <p class="pb-4">{question.answer}</p>
+            <div
+              class="pb-4 markdown"
+              set:html={marked.parse(question.answer ?? "")}
+            />
           </>
         ))
       ) : (

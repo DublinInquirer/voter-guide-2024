@@ -1,0 +1,11 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+.markdown {
+  ul {
+    list-style: disc;
+    margin-top: 16px;
+    padding-left: 40px;
+  }
+}

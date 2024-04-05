@@ -1,5 +1,6 @@
 ---
 import lodash from "lodash";
+import { marked } from "marked";
 
 import {
   airtableClient,
@@ -122,7 +123,10 @@ const {
                     {answer.candidateFullName}
                   </Link>
                 </h3>
-                <p>{answer.answer}</p>
+                <div
+                  class="pb-4 markdown"
+                  set:html={marked.parse(answer.answer ?? "")}
+                />
               </>
             ))}
           </>
