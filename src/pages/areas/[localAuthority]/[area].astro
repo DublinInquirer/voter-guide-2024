@@ -6,6 +6,7 @@ import {
   airtableClient,
   getLookupFieldValue,
   getStringFieldValue,
+  getOptionalLookupFieldValue,
 } from "../../../airtable-api";
 import Layout from "../../../layouts/Layout.astro";
 import HeaderSection from "../../../components/HeaderSection.astro";
@@ -13,6 +14,7 @@ import HeaderTitle from "../../../components/HeaderTitle.astro";
 import QuestionText from "../../../components/QuestionText.astro";
 import Link from "../../../components/Link.astro";
 import AreaSelector from "../../../components/AreaSelector.astro";
+import CandidateAvatar from "../../../components/CandidateAvatar.astro";
 import { getAreasByLocalAuthority } from "../../../utils";
 
 export async function getStaticPaths() {
@@ -60,9 +62,14 @@ export async function getStaticPaths() {
               answerRecord,
               "Candidate full name"
             );
+            const candidateProfilePictureUrl = getOptionalLookupFieldValue(
+              answerRecord,
+              "Candidate profile picture"
+            );
             const answer = getStringFieldValue(answerRecord, "Text");
             return {
               candidateFullName,
+              candidateProfilePictureUrl,
               answer,
             };
           }),
@@ -116,13 +123,22 @@ const {
             <QuestionText>{question.text}</QuestionText>
             {question.answers.map((answer) => (
               <>
-                <h3>
-                  <Link
-                    to={`candidates/${lodash.kebabCase(answer.candidateFullName)}`}
-                  >
-                    {answer.candidateFullName}
-                  </Link>
-                </h3>
+                <div class="flex">
+                  <div class="-ml-1 mr-2">
+                    <CandidateAvatar
+                      candidateFullName={answer.candidateFullName}
+                      profilePictureUrl={answer.candidateProfilePictureUrl}
+                      showName={false}
+                    />
+                  </div>
+                  <h3 class="self-center">
+                    <Link
+                      to={`candidates/${lodash.kebabCase(answer.candidateFullName)}`}
+                    >
+                      {answer.candidateFullName}
+                    </Link>
+                  </h3>
+                </div>
                 <div
                   class="pb-4 markdown"
                   set:html={marked.parse(answer.answer ?? "")}

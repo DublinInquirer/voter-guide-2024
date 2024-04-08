@@ -12,6 +12,16 @@ export function getLookupFieldValue(
   return z.array(z.string()).parse(record.get(fieldName))[0];
 }
 
+export function getOptionalLookupFieldValue(
+  record: Record<FieldSet>,
+  fieldName: string
+) {
+  return z
+    .array(z.string().optional())
+    .optional()
+    .parse(record.get(fieldName))?.[0];
+}
+
 export function getStringFieldValue(
   record: Record<FieldSet>,
   fieldName: string
