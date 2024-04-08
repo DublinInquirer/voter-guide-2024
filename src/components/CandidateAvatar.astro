@@ -5,14 +5,18 @@ import Link from "./Link.astro";
 
 interface Props {
   candidateFullName: string;
+  profilePictureUrl?: string;
 }
 
-const { candidateFullName } = Astro.props;
+const { candidateFullName, profilePictureUrl } = Astro.props;
+const srcUrl = profilePictureUrl
+  ? `https://i0.wp.com/dublininquirer.com${new URL(profilePictureUrl).pathname}?resize=64%2C64&ssl=1`
+  : "data:image/gif;base64,R0lGODlhAQABAIAAAMLCwgAAACH5BAAAAAAALAAAAAABAAEAAAICRAEAOw==";
 ---
 
 <div class="p-1">
   <Link to={`candidates/${lodash.kebabCase(candidateFullName)}`}>
-    <img src="https://picsum.photos/64" class="rounded-full" />
+    <img src={srcUrl} class="rounded-full w-16 h-16" />
     <p class="text-xs text-center w-16">
       {candidateFullName}
     </p>

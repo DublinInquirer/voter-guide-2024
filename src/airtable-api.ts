@@ -18,3 +18,10 @@ export function getStringFieldValue(
 ) {
   return z.string().parse(record.get(fieldName));
 }
+
+export function getOptionalStringFieldValue(
+  record: Record<FieldSet>,
+  fieldName: string
+) {
+  return z.string().optional().parse(record.get(fieldName));
+}
