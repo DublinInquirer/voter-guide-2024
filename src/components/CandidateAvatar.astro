@@ -6,9 +6,10 @@ import Link from "./Link.astro";
 interface Props {
   candidateFullName: string;
   profilePictureUrl?: string;
+  showName?: boolean;
 }
 
-const { candidateFullName, profilePictureUrl } = Astro.props;
+const { candidateFullName, profilePictureUrl, showName = true } = Astro.props;
 const srcUrl = profilePictureUrl
   ? `https://i0.wp.com/dublininquirer.com${new URL(profilePictureUrl).pathname}?resize=64%2C64&ssl=1`
   : "data:image/gif;base64,R0lGODlhAQABAIAAAMLCwgAAACH5BAAAAAAALAAAAAABAAEAAAICRAEAOw==";
@@ -17,8 +18,10 @@ const srcUrl = profilePictureUrl
 <div class="p-1">
   <Link to={`candidates/${lodash.kebabCase(candidateFullName)}`}>
     <img src={srcUrl} class="rounded-full w-16 h-16" />
-    <p class="text-xs text-center w-16">
-      {candidateFullName}
-    </p>
+    {
+      showName ? (
+        <p class="text-xs text-center w-16">{candidateFullName}</p>
+      ) : null
+    }
   </Link>
 </div>

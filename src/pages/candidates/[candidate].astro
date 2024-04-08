@@ -5,6 +5,7 @@ import { marked } from "marked";
 import {
   airtableClient,
   getLookupFieldValue,
+  getOptionalStringFieldValue,
   getStringFieldValue,
 } from "../../airtable-api";
 import Layout from "../../layouts/Layout.astro";
@@ -13,6 +14,7 @@ import HeaderTitle from "../../components/HeaderTitle.astro";
 import HeaderSubtitle from "../../components/HeaderSubtitle.astro";
 import QuestionText from "../../components/QuestionText.astro";
 import Link from "../../components/Link.astro";
+import CandidateAvatar from "../../components/CandidateAvatar.astro";
 
 export async function getStaticPaths() {
   const candidates = await airtableClient("Candidates")
@@ -39,6 +41,10 @@ export async function getStaticPaths() {
     const candidateAreaLocalAuthorityName = getLookupFieldValue(
       candidateRecord,
       "Area local authority name"
+    );
+    const candidateProfilePictureUrl = getOptionalStringFieldValue(
+      candidateRecord,
+      "Profile picture"
     );
 
     const questions = questionRecords
@@ -73,6 +79,7 @@ export async function getStaticPaths() {
         candidateFullName,
         candidateAreaName,
         candidateAreaLocalAuthorityName,
+        candidateProfilePictureUrl,
         questions,
         hasAnswers,
       },
@@ -84,6 +91,7 @@ const {
   candidateFullName,
   candidateAreaName,
   candidateAreaLocalAuthorityName,
+  candidateProfilePictureUrl,
   questions,
   hasAnswers,
 } = Astro.props;
@@ -91,6 +99,13 @@ const {
 
 <Layout>
   <HeaderSection>
+    <div class="flex place-content-center">
+      <CandidateAvatar
+        candidateFullName={candidateFullName}
+        profilePictureUrl={candidateProfilePictureUrl}
+        showName={false}
+      />
+    </div>
     <HeaderTitle>{candidateFullName}</HeaderTitle>
     <HeaderSubtitle>
       Candidate for
