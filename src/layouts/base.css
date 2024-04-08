@@ -3,9 +3,12 @@
 @tailwind utilities;
 
 .markdown {
+  p {
+    padding-bottom: 1rem;
+  }
   ul {
     list-style: disc;
-    margin-top: 16px;
     padding-left: 40px;
+    padding-bottom: 1rem;
   }
 }
