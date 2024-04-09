@@ -9,7 +9,8 @@ import Layout from "../layouts/Layout.astro";
 import Link from "../components/Link.astro";
 import CandidateAvatar from "../components/CandidateAvatar.astro";
 import AreaSelector from "../components/AreaSelector.astro";
-import { getAreasByLocalAuthority } from "../utils";
+import { LOCAL_AUTHORITY, getAreasByLocalAuthority } from "../utils";
+import lodash from "lodash";
 
 const electoralAreas = await airtableClient("Areas")
   .select({
@@ -68,7 +69,7 @@ const candidatesByArea = candidates.reduce<Record<string, typeof candidates>>(
     </p>
   </header>
   <main class="px-gutter">
-    <h1 class="font-bold text-2xl">Dublin City Council</h1>
+    <h1 class="font-bold text-2xl">{LOCAL_AUTHORITY.DUBLIN_CITY_COUNCIL}</h1>
     {
       dccElectoralAreaNames.map((electoralAreaName) => {
         if (
@@ -80,7 +81,11 @@ const candidatesByArea = candidates.reduce<Record<string, typeof candidates>>(
         return (
           <>
             <div>
-              <p>{electoralAreaName}</p>
+              <Link
+                to={`areas/${lodash.kebabCase(LOCAL_AUTHORITY.DUBLIN_CITY_COUNCIL)}/${lodash.kebabCase(electoralAreaName)}`}
+              >
+                {electoralAreaName}
+              </Link>
             </div>
             <div class="flex flex-wrap">
               {candidatesByArea[electoralAreaName]?.map((candidate) => {
@@ -104,7 +109,7 @@ const candidatesByArea = candidates.reduce<Record<string, typeof candidates>>(
         );
       })
     }
-    <h1 class="font-bold text-2xl">Fingal County Council</h1>
+    <h1 class="font-bold text-2xl">{LOCAL_AUTHORITY.FINGAL_COUNTY_COUNCIL}</h1>
     {
       fingalElectoralAreaNames.map((electoralAreaName) => {
         if (
@@ -116,7 +121,11 @@ const candidatesByArea = candidates.reduce<Record<string, typeof candidates>>(
         return (
           <>
             <div>
-              <p>{electoralAreaName}</p>
+              <Link
+                to={`areas/${lodash.kebabCase(LOCAL_AUTHORITY.FINGAL_COUNTY_COUNCIL)}/${lodash.kebabCase(electoralAreaName)}`}
+              >
+                {electoralAreaName}
+              </Link>
             </div>
             <div class="flex flex-wrap">
               {candidatesByArea[electoralAreaName]?.map((candidate) => {

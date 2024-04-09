@@ -1,5 +1,6 @@
 ---
 import lodash from "lodash";
+import { LOCAL_AUTHORITY } from "../utils";
 
 interface Props {
   dccElectoralAreaNames: string[];
@@ -14,21 +15,21 @@ const { dccElectoralAreaNames, fingalElectoralAreaNames } = Astro.props;
   class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg p-2 block w-full"
 >
   <option disabled selected>Choose your electoral area</option>
-  <option disabled>Dublin City Council</option>
+  <option disabled>{LOCAL_AUTHORITY.DUBLIN_CITY_COUNCIL}</option>
   {
     dccElectoralAreaNames.map((electoralAreaName) => (
       <option
-        value={`dublin-city-council/${lodash.kebabCase(electoralAreaName)}`}
+        value={`${lodash.kebabCase(LOCAL_AUTHORITY.DUBLIN_CITY_COUNCIL)}/${lodash.kebabCase(electoralAreaName)}`}
       >
         {electoralAreaName}
       </option>
     ))
   }
-  <option disabled>Fingal County Council</option>
+  <option disabled>{LOCAL_AUTHORITY.FINGAL_COUNTY_COUNCIL}</option>
   {
     fingalElectoralAreaNames.map((electoralAreaName) => (
       <option
-        value={`fingal-county-council/${lodash.kebabCase(electoralAreaName)}`}
+        value={`${lodash.kebabCase(LOCAL_AUTHORITY.FINGAL_COUNTY_COUNCIL)}/${lodash.kebabCase(electoralAreaName)}`}
       >
         {electoralAreaName}
       </option>
