@@ -38,6 +38,10 @@ export async function getStaticPaths() {
 
   return candidates.map((candidateRecord) => {
     const candidateFullName = getStringFieldValue(candidateRecord, "Full name");
+    const candidatePartyName = getLookupFieldValue(
+      candidateRecord,
+      "Party name"
+    );
     const candidateAreaName = getLookupFieldValue(candidateRecord, "Area name");
     const candidateAreaLocalAuthorityName = getLookupFieldValue(
       candidateRecord,
@@ -78,6 +82,7 @@ export async function getStaticPaths() {
       },
       props: {
         candidateFullName,
+        candidatePartyName,
         candidateAreaName,
         candidateAreaLocalAuthorityName,
         candidateProfilePictureUrl,
@@ -90,6 +95,7 @@ export async function getStaticPaths() {
 
 const {
   candidateFullName,
+  candidatePartyName,
   candidateAreaName,
   candidateAreaLocalAuthorityName,
   candidateProfilePictureUrl,
@@ -109,7 +115,7 @@ const {
     </div>
     <HeaderTitle>{candidateFullName}</HeaderTitle>
     <HeaderSubtitle>
-      Candidate for
+      {candidatePartyName} candidate for
       <Link
         to={`areas/${lodash.kebabCase(candidateAreaLocalAuthorityName)}/${lodash.kebabCase(candidateAreaName)}`}
       >
