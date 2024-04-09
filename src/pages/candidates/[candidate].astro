@@ -38,6 +38,10 @@ export async function getStaticPaths() {
 
   return candidates.map((candidateRecord) => {
     const candidateFullName = getStringFieldValue(candidateRecord, "Full name");
+    const candidateEmail = getOptionalStringFieldValue(
+      candidateRecord,
+      "Email"
+    );
     const candidatePartyName = getLookupFieldValue(
       candidateRecord,
       "Party name"
@@ -82,6 +86,7 @@ export async function getStaticPaths() {
       },
       props: {
         candidateFullName,
+        candidateEmail,
         candidatePartyName,
         candidateAreaName,
         candidateAreaLocalAuthorityName,
@@ -95,6 +100,7 @@ export async function getStaticPaths() {
 
 const {
   candidateFullName,
+  candidateEmail,
   candidatePartyName,
   candidateAreaName,
   candidateAreaLocalAuthorityName,
@@ -136,11 +142,21 @@ const {
           </>
         ))
       ) : (
-        <p>
-          If you're a voter in this candidate's area and you'd like them to
-          answer these questions, please email them and tell them this:
-          &lt;placeholder-email@example.com&gt;.
-        </p>
+        <>
+          <p class="mb-4">
+            {candidateFullName} hasn't yet responded to our questionnaire. If{" "}
+            {candidateAreaName} is your local electoral area, why not send them
+            an email reminding them to submit their responses?
+          </p>
+          <p>
+            <a
+              class="underline"
+              href={`mailto:${candidateEmail}?cc=sam@dublininquirer.com&subject=Dublin Inquirer questionnaire&body=I am a voter in ${candidateAreaName} and I am interested in your responses to the questions on Dublin Inquirer's local election voter guide.`}
+            >
+              Email {candidateFullName}
+            </a>
+          </p>
+        </>
       )
     }
   </main>
