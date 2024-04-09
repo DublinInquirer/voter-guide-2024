@@ -62,6 +62,10 @@ export async function getStaticPaths() {
               answerRecord,
               "Candidate full name"
             );
+            const candidatePartyName = getLookupFieldValue(
+              answerRecord,
+              "Candidate party name"
+            );
             const candidateProfilePictureUrl = getOptionalLookupFieldValue(
               answerRecord,
               "Candidate profile picture"
@@ -69,6 +73,7 @@ export async function getStaticPaths() {
             const answer = getStringFieldValue(answerRecord, "Text");
             return {
               candidateFullName,
+              candidatePartyName,
               candidateProfilePictureUrl,
               answer,
             };
@@ -131,13 +136,16 @@ const {
                       showName={false}
                     />
                   </div>
-                  <h3 class="self-center">
-                    <Link
-                      to={`candidates/${lodash.kebabCase(answer.candidateFullName)}`}
-                    >
-                      {answer.candidateFullName}
-                    </Link>
-                  </h3>
+                  <div class="self-center">
+                    <h3>
+                      <Link
+                        to={`candidates/${lodash.kebabCase(answer.candidateFullName)}`}
+                      >
+                        {answer.candidateFullName}
+                      </Link>
+                    </h3>
+                    <h3>{answer.candidatePartyName}</h3>
+                  </div>
                 </div>
                 <div
                   class="pb-4 markdown"
