@@ -69,7 +69,14 @@ const candidatesByArea = candidates.reduce<Record<string, typeof candidates>>(
     </p>
   </header>
   <main class="px-gutter">
-    <h1 class="font-bold text-2xl">{LOCAL_AUTHORITY.DUBLIN_CITY_COUNCIL}</h1>
+    <a
+      id="DUBLIN_CITY_COUNCIL"
+      class="underline text-sm"
+      href="#FINGAL_COUNTY_COUNCIL">[Go to Fingal County Council]</a
+    >
+    <h1 class="font-bold text-2xl">
+      {LOCAL_AUTHORITY.DUBLIN_CITY_COUNCIL}
+    </h1>
     {
       dccElectoralAreaNames.map((electoralAreaName) => {
         if (
@@ -109,7 +116,14 @@ const candidatesByArea = candidates.reduce<Record<string, typeof candidates>>(
         );
       })
     }
-    <h1 class="font-bold text-2xl">{LOCAL_AUTHORITY.FINGAL_COUNTY_COUNCIL}</h1>
+    <a
+      id="FINGAL_COUNTY_COUNCIL"
+      class="underline text-sm"
+      href="#DUBLIN_CITY_COUNCIL">[Go to Dublin City Council]</a
+    >
+    <h1 class="font-bold text-2xl">
+      {LOCAL_AUTHORITY.FINGAL_COUNTY_COUNCIL}
+    </h1>
     {
       fingalElectoralAreaNames.map((electoralAreaName) => {
         if (
