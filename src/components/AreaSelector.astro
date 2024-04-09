@@ -15,26 +15,28 @@ const { dccElectoralAreaNames, fingalElectoralAreaNames } = Astro.props;
   class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg p-2 block w-full"
 >
   <option disabled selected>Choose your electoral area</option>
-  <option disabled>{LOCAL_AUTHORITY.DUBLIN_CITY_COUNCIL}</option>
-  {
-    dccElectoralAreaNames.map((electoralAreaName) => (
-      <option
-        value={`${lodash.kebabCase(LOCAL_AUTHORITY.DUBLIN_CITY_COUNCIL)}/${lodash.kebabCase(electoralAreaName)}`}
-      >
-        {electoralAreaName}
-      </option>
-    ))
-  }
-  <option disabled>{LOCAL_AUTHORITY.FINGAL_COUNTY_COUNCIL}</option>
-  {
-    fingalElectoralAreaNames.map((electoralAreaName) => (
-      <option
-        value={`${lodash.kebabCase(LOCAL_AUTHORITY.FINGAL_COUNTY_COUNCIL)}/${lodash.kebabCase(electoralAreaName)}`}
-      >
-        {electoralAreaName}
-      </option>
-    ))
-  }
+  <optgroup label={LOCAL_AUTHORITY.DUBLIN_CITY_COUNCIL}>
+    {
+      dccElectoralAreaNames.map((electoralAreaName) => (
+        <option
+          value={`${lodash.kebabCase(LOCAL_AUTHORITY.DUBLIN_CITY_COUNCIL)}/${lodash.kebabCase(electoralAreaName)}`}
+        >
+          {electoralAreaName}
+        </option>
+      ))
+    }
+  </optgroup>
+  <optgroup label={LOCAL_AUTHORITY.FINGAL_COUNTY_COUNCIL}>
+    {
+      fingalElectoralAreaNames.map((electoralAreaName) => (
+        <option
+          value={`${lodash.kebabCase(LOCAL_AUTHORITY.FINGAL_COUNTY_COUNCIL)}/${lodash.kebabCase(electoralAreaName)}`}
+        >
+          {electoralAreaName}
+        </option>
+      ))
+    }
+  </optgroup>
 </select>
 <script>
   const selectElement = document.querySelector("select[name=electoral-area]");
