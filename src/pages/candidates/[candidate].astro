@@ -5,6 +5,7 @@ import { marked } from "marked";
 import {
   airtableClient,
   getLookupFieldValue,
+  getOptionalLookupFieldValue,
   getOptionalStringFieldValue,
   getStringFieldValue,
 } from "../../airtable-api";
@@ -56,7 +57,7 @@ export async function getStaticPaths() {
       .map((questionRecord) => {
         const answerRecord = answerRecords.filter((answerRecord) => {
           return (
-            getLookupFieldValue(answerRecord, "Candidate full name") ===
+            getOptionalLookupFieldValue(answerRecord, "Candidate full name") ===
               candidateFullName &&
             answerRecord.get("Question")?.toString() === questionRecord.id
           );

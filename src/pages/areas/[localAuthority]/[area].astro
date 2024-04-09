@@ -51,7 +51,7 @@ export async function getStaticPaths() {
       .map((questionRecord) => {
         const answersForQuestion = answers.filter(
           (answerRecord) =>
-            getLookupFieldValue(answerRecord, "Candidate area name") ===
+            getOptionalLookupFieldValue(answerRecord, "Candidate area name") ===
               electoralAreaName &&
             answerRecord.get("Question")?.toString() === questionRecord.id
         );
