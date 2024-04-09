@@ -121,12 +121,14 @@ const {
     </div>
     <HeaderTitle>{candidateFullName}</HeaderTitle>
     <HeaderSubtitle>
-      {candidatePartyName} candidate for
-      <Link
-        to={`areas/${lodash.kebabCase(candidateAreaLocalAuthorityName)}/${lodash.kebabCase(candidateAreaName)}`}
+      {candidatePartyName} candidate <span class="whitespace-nowrap"
+        >for
+        <Link
+          to={`areas/${lodash.kebabCase(candidateAreaLocalAuthorityName)}/${lodash.kebabCase(candidateAreaName)}`}
+        >
+          {candidateAreaName}
+        </Link></span
       >
-        {candidateAreaName}
-      </Link>
     </HeaderSubtitle>
   </HeaderSection>
   <main class="px-gutter">
