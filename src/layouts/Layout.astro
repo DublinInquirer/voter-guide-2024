@@ -1,4 +1,5 @@
 ---
+import Link from "../components/Link.astro";
 import "./base.css";
 
 interface Props {
@@ -27,26 +28,56 @@ const { title = `Voters' Agenda` } = Astro.props;
   <body
     class="font-body text-dublin-inquirer-foreground bg-dublin-inquirer-background"
   >
-    <div class="flex px-gutter pt-4 pb-2 divide-x-2">
-      <div class="pr-2">
-        <a href="https://dublininquirer.com">
-          <img
-            class="w-48"
-            src="https://i0.wp.com/dublininquirer.com/wp-content/uploads/2024/03/Voter-Guide-Logo-42.png?fit=215%2C90&ssl=1"
-            alt="Dublin Inquirer"
-            decoding="async"
-            fetchpriority="high"
-            srcset="https://i0.wp.com/dublininquirer.com/wp-content/uploads/2024/03/Voter-Guide-Logo-42.png?fit=215%2C90&ssl=1&w=215 215w"
-            sizes="(max-width: 3333px) 100vw, 3333px"
-          />
-        </a>
+    <div class="flex flex-col h-screen">
+      <div class="flex px-gutter pt-4 pb-2 divide-x-2">
+        <div class="pr-2">
+          <a href="https://dublininquirer.com">
+            <img
+              class="w-48"
+              src="https://i0.wp.com/dublininquirer.com/wp-content/uploads/2024/03/Voter-Guide-Logo-42.png?fit=215%2C90&ssl=1"
+              alt="Dublin Inquirer"
+              decoding="async"
+              fetchpriority="high"
+              srcset="https://i0.wp.com/dublininquirer.com/wp-content/uploads/2024/03/Voter-Guide-Logo-42.png?fit=215%2C90&ssl=1&w=215 215w"
+              sizes="(max-width: 3333px) 100vw, 3333px"
+            />
+          </a>
+        </div>
+        <div class="pl-2">
+          <a href={`${import.meta.env.BASE_URL}/`}>
+            <h1 class="font-bold">2024 Local Elections Voter Guide</h1>
+          </a>
+        </div>
       </div>
-      <div class="pl-2">
-        <a href={`${import.meta.env.BASE_URL}/`}>
-          <h1 class="font-bold">2024 Local Elections Voter Guide</h1>
-        </a>
+      <div class="flex-grow">
+        <slot />
       </div>
+      <footer class="px-gutter text-xs text-center">
+        <p class="pb-2">
+          This voter guide was put together by <Link
+            href="https://dublininquirer.com"
+            target="_blank">Dublin Inquirer</Link
+          > and <Link href="https://github.com/tewson" target="_blank"
+            >Tewson Seeoun</Link
+          >, with assistance from Emma Hanrahan and Hugh Dooley.
+        </p>
+        <p class="pb-2">
+          If you have questions or suggestions, or are a candidate for Dublin
+          City Council or Fingal County Council and want to be included, please
+          contact
+          <Link href="mailto:sam@dublininquirer.com"
+            >sam@dublininquirer.com</Link
+          >.
+        </p>
+        <p class="pb-4">
+          Dublin Inquirer is a small, local, independent paper, supported by
+          readers through subscriptions. If you like what we do, we'd love it if
+          you'd consider <Link
+            href="https://dublininquirer.com/subscribe/"
+            target="_blank">subscribing</Link
+          > so we can do more.
+        </p>
+      </footer>
     </div>
-    <slot />
   </body>
 </html>
