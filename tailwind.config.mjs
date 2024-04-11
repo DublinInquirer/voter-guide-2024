@@ -11,7 +11,7 @@ export default {
         "dublin-inquirer-background": "rgb(243, 241, 235)",
       },
       spacing: {
-        gutter: "2rem",
+        gutter: "1.25rem",
       },
     },
   },
