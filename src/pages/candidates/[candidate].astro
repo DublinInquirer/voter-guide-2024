@@ -160,7 +160,7 @@ const {
           <p>
             <a
               class="underline lg:hidden"
-              href={`mailto:${candidateEmail}?cc=sam@dublininquirer.com&subject=Dublin Inquirer questionnaire&body=${suggestedEmailMessage(candidateAreaName)}`}
+              href={encodeURI(`mailto:${candidateEmail}?cc=sam@dublininquirer.com&subject=Dublin Inquirer questionnaire&body=${suggestedEmailMessage(candidateAreaName)}`)}
             >
               Email {candidateFullName}
             </a>
