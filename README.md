@@ -1,6 +1,6 @@
-# Voters' Agenda
+# Voter Guide 2024
 
-Voters' Agenda for 2024 Irish Local Elections in Dublin
+Voter Guide for 2024 Irish Local Elections in Dublin City Council and Fingal County Council
 
 ## 🧞 Commands
 
