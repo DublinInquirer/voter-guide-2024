@@ -1,20 +1,22 @@
 ---
 interface Props {
+  id: string;
   text: string;
 }
 
-const { text } = Astro.props;
+const { id, text } = Astro.props;
 ---
 
 <button
-  id="copy-button"
+  id={id}
   data-text={text}
   class="text-sm border border-gray-500 active:bg-gray-500 py-1 px-2 rounded"
 >
   Copy
 </button>
-<script>
-  const copyButtonElement = document.querySelector("#copy-button");
+<script define:vars={{ id }}>
+  const copyButtonElement = document.querySelector(`#${id}`);
+  console.log({ id, copyButtonElement });
   copyButtonElement?.addEventListener("click", async () => {
     if (
       copyButtonElement instanceof HTMLElement &&
