@@ -4,8 +4,7 @@ import tailwind from "@astrojs/tailwind";
 
 // https://astro.build/config
 export default defineConfig({
-  site: "https://dublininquirer.github.io",
-  base: "/voter-guide-2024",
+  site: "https://dublinvoterguide2024.ie",
   build: {
     format: "file",
   },

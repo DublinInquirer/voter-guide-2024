@@ -41,6 +41,6 @@ const { dccElectoralAreaNames, fingalElectoralAreaNames } = Astro.props;
 <script>
   const selectElement = document.querySelector("select[name=electoral-area]");
   selectElement?.addEventListener("change", (event) => {
-    window.location.href = `${import.meta.env.BASE_URL}/areas/${(event.target as HTMLSelectElement).value}`;
+    window.location.href = `${import.meta.env.BASE_URL}areas/${(event.target as HTMLSelectElement).value}`;
   });
 </script>
