@@ -6,6 +6,8 @@ interface Props {
   title?: string;
 }
 
+const GOOGLE_TAG_ID = import.meta.env.GOOGLE_TAG_ID;
+
 const description = `Here's what the candidates say about eight issues, to help you decide who you're going to vote for.`;
 
 const { title = "Dublin Inquirer Local Elections Voter Guide 2024" } =
@@ -24,6 +26,10 @@ const { title = "Dublin Inquirer Local Elections Voter Guide 2024" } =
     <link
       href="https://fonts.googleapis.com/css2?family=Noto+Serif:ital,wght@0,100..900;1,100..900&display=swap"
       rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/gh/orestbida/cookieconsent@3.0.1/dist/cookieconsent.css"
     />
     <title>{title}</title>
     <meta name="description" content={description} />
@@ -46,6 +52,25 @@ const { title = "Dublin Inquirer Local Elections Voter Guide 2024" } =
       name="twitter:image"
       content="https://dublinvoterguide2024.ie/images/link-preview.jpeg"
     />
+
+    <script is:inline define:vars={{ GOOGLE_TAG_ID }}>
+      window.GOOGLE_TAG_ID = GOOGLE_TAG_ID;
+      window.dataLayer = window.dataLayer || [];
+      function gtag() {
+        dataLayer.push(arguments);
+      }
+      gtag("consent", "default", {
+        ad_user_data: "denied",
+        ad_personalization: "denied",
+        ad_storage: "denied",
+        analytics_storage: "denied",
+        wait_for_update: 500,
+      });
+
+      gtag("js", new Date());
+
+      gtag("config", window.GOOGLE_TAG_ID);
+    </script>
   </head>
   <body
     class="font-body text-dublin-inquirer-foreground bg-dublin-inquirer-background"
@@ -101,5 +126,87 @@ const { title = "Dublin Inquirer Local Elections Voter Guide 2024" } =
         </p>
       </footer>
     </div>
+    <script>
+      import "https://cdn.jsdelivr.net/gh/orestbida/cookieconsent@3.0.1/dist/cookieconsent.umd.js";
+
+      (window as any).CookieConsent.run({
+        categories: {
+          necessary: {
+            enabled: true,
+            readOnly: true,
+          },
+          analytics: {},
+        },
+
+        language: {
+          default: "en",
+          translations: {
+            en: {
+              consentModal: {
+                title: "This site uses cookies",
+                description:
+                  "We use cookies to collect statistics on your visits so we can show the candidates how important their answers are to voters.",
+                acceptAllBtn: "Accept all",
+                acceptNecessaryBtn: "Reject all",
+                showPreferencesBtn: "Manage Individual preferences",
+              },
+              preferencesModal: {
+                title: "Manage cookie preferences",
+                acceptAllBtn: "Accept all",
+                acceptNecessaryBtn: "Reject all",
+                savePreferencesBtn: "Accept current selection",
+                closeIconLabel: "Close modal",
+                sections: [
+                  {
+                    title: "Strictly Necessary cookies",
+                    description:
+                      "These cookies are essential for the proper functioning of the website and cannot be disabled.",
+                    linkedCategory: "necessary",
+                  },
+                  {
+                    title: "Analytics",
+                    description:
+                      "These cookies collect information about how you use our website. All of the data is anonymized and cannot be used to identify you.",
+                    linkedCategory: "analytics",
+                  },
+                  {
+                    title: "More information",
+                    description:
+                      'For any queries in relation to our usage of cookies and your choices, please see our <a href="https://dublininquirer.com/privacy-policy">privacy policy</a>',
+                  },
+                ],
+              },
+            },
+          },
+        },
+
+        onFirstConsent: ({ cookie }: { cookie: any }) => {
+          function gtag(_: string, __: string, ___: object) {
+            (window as any).dataLayer.push(arguments);
+          }
+
+          if (cookie.categories.includes("analytics")) {
+            gtag("consent", "update", {
+              analytics_storage: "granted",
+            });
+          }
+
+          const gtagScript = document.createElement("script");
+          gtagScript.async = true;
+          gtagScript.src = `https://www.googletagmanager.com/gtag/js?id=${(window as any).GOOGLE_TAG_ID}`;
+          const firstScript = document.getElementsByTagName("script")[0];
+          firstScript.parentNode?.insertBefore(gtagScript, firstScript);
+        },
+      });
+
+      if ((window as any).CookieConsent.acceptedCategory("analytics")) {
+        function gtag(_: string, __: string, ___: object) {
+          (window as any).dataLayer.push(arguments);
+        }
+        gtag("consent", "update", {
+          analytics_storage: "granted",
+        });
+      }
+    </script>
   </body>
 </html>
