@@ -7,11 +7,11 @@ interface Props {
 }
 
 const GOOGLE_TAG_ID = import.meta.env.GOOGLE_TAG_ID;
+const BASE_TITLE = "Dublin Inquirer Local Elections Voter Guide 2024";
 
 const description = `Here's what the candidates say about eight issues, to help you decide who you're going to vote for.`;
 
-const { title = "Dublin Inquirer Local Elections Voter Guide 2024" } =
-  Astro.props;
+const { title } = Astro.props;
 ---
 
 <!doctype html>
@@ -31,7 +31,7 @@ const { title = "Dublin Inquirer Local Elections Voter Guide 2024" } =
       rel="stylesheet"
       href="https://cdn.jsdelivr.net/gh/orestbida/cookieconsent@3.0.1/dist/cookieconsent.css"
     />
-    <title>{title}</title>
+    <title>{title ? `${title} | ${BASE_TITLE}` : BASE_TITLE}</title>
     <meta name="description" content={description} />
 
     <meta property="og:url" content="https://dublinvoterguide2024.ie/" />

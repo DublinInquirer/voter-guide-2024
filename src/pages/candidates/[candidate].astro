@@ -74,7 +74,7 @@ export async function getStaticPaths() {
         return {
           text: getStringFieldValue(questionRecord, "Text"),
           answer: answerRecord
-            ? getStringFieldValue(answerRecord, "Text")
+            ? getOptionalStringFieldValue(answerRecord, "Text")
             : undefined,
         };
       });
@@ -117,7 +117,7 @@ const {
 } = Astro.props;
 ---
 
-<Layout>
+<Layout title={`${candidateFullName} | ${candidateAreaName}`}>
   <HeaderSection>
     <div class="flex place-content-center">
       <CandidateAvatar
