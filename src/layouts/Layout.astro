@@ -76,7 +76,9 @@ const { title } = Astro.props;
     class="font-body text-dublin-inquirer-foreground bg-dublin-inquirer-background"
   >
     <div class="flex flex-col h-screen">
-      <div class="flex px-gutter pt-4 pb-2 divide-x-2">
+      <div
+        class="flex px-gutter pt-4 pb-2 divide-x-2 max-w-screen-md w-full mx-auto"
+      >
         <div class="pr-2">
           <a href="https://dublininquirer.com">
             <img
@@ -99,7 +101,9 @@ const { title } = Astro.props;
       <div class="flex-grow">
         <slot />
       </div>
-      <footer class="px-gutter text-xs text-center pt-8">
+      <footer
+        class="px-gutter md:px-24 text-xs text-center pt-8 max-w-screen-md mx-auto"
+      >
         <p class="pb-2">
           This voter guide was put together by <Link
             href="https://dublininquirer.com"
