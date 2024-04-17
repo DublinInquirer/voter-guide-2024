@@ -28,6 +28,7 @@ env:
   BUILD_PATH: "." # default value when not using subfolders
   # BUILD_PATH: subfolder
   AIRTABLE_API_KEY: ${{ secrets.AIRTABLE_API_KEY }}
+  GOOGLE_TAG_ID: ${{ secrets.GOOGLE_TAG_ID }}
 
 jobs:
   build:
