@@ -7,14 +7,21 @@ export const airtableClient = new airtable({
 
 export function getLookupFieldValue(
   record: Record<FieldSet>,
-  fieldName: string
+  fieldName: string,
 ) {
   return z.array(z.string()).parse(record.get(fieldName))[0];
 }
 
+export function getLookupFieldMultipleValues(
+  record: Record<FieldSet>,
+  fieldName: string,
+) {
+  return z.array(z.string()).parse(record.get(fieldName));
+}
+
 export function getOptionalLookupFieldValue(
   record: Record<FieldSet>,
-  fieldName: string
+  fieldName: string,
 ) {
   return z
     .array(z.string().optional())
@@ -24,14 +31,14 @@ export function getOptionalLookupFieldValue(
 
 export function getStringFieldValue(
   record: Record<FieldSet>,
-  fieldName: string
+  fieldName: string,
 ) {
   return z.string().parse(record.get(fieldName));
 }
 
 export function getOptionalStringFieldValue(
   record: Record<FieldSet>,
-  fieldName: string
+  fieldName: string,
 ) {
   return z.string().optional().parse(record.get(fieldName));
 }

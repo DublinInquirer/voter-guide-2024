@@ -1,9 +1,9 @@
 ---
 import {
   airtableClient,
-  getLookupFieldValue,
   getStringFieldValue,
   getOptionalStringFieldValue,
+  getLookupFieldMultipleValues,
 } from "../airtable-api";
 import Layout from "../layouts/Layout.astro";
 import Link from "../components/Link.astro";
@@ -11,6 +11,7 @@ import CandidateAvatar from "../components/CandidateAvatar.astro";
 import AreaSelector from "../components/AreaSelector.astro";
 import { LOCAL_AUTHORITY, getAreasByLocalAuthority } from "../utils";
 import lodash from "lodash";
+import type { FieldSet, Record as AirtableRecord } from "airtable";
 
 const electoralAreas = await airtableClient("Areas")
   .select({
@@ -27,19 +28,25 @@ const candidates = await airtableClient("Candidates")
   })
   .all();
 
-const candidatesByArea = candidates.reduce<Record<string, typeof candidates>>(
-  (acc, candidate) => {
-    const candidateAreaName = getLookupFieldValue(candidate, "Area name");
-    const candidatesInArea = acc[candidateAreaName]
-      ? [...acc[candidateAreaName], candidate]
-      : [candidate];
-    return {
-      ...acc,
-      [candidateAreaName]: candidatesInArea,
-    };
-  },
-  {}
-);
+const candidatesByArea = electoralAreas.reduce<
+  Record<string, typeof candidates>
+>((acc, areaRecord) => {
+  const candidatesInArea = getLookupFieldMultipleValues(
+    areaRecord,
+    "Candidates",
+  )
+    .map((candidateId) =>
+      candidates.find((candidateRecord) => candidateRecord.id === candidateId),
+    )
+    .filter((candidateRecord): candidateRecord is AirtableRecord<FieldSet> =>
+      Boolean(candidateRecord),
+    );
+  const areaName = getStringFieldValue(areaRecord, "Name");
+  return {
+    ...acc,
+    [areaName]: candidatesInArea,
+  };
+}, {});
 ---
 
 <Layout>
@@ -98,14 +105,14 @@ const candidatesByArea = candidates.reduce<Record<string, typeof candidates>>(
               {candidatesByArea[electoralAreaName]?.map((candidate) => {
                 const candidateFullName = getStringFieldValue(
                   candidate,
-                  "Full name"
+                  "Full name",
                 );
                 return (
                   <CandidateAvatar
                     candidateFullName={candidateFullName}
                     profilePictureUrl={getOptionalStringFieldValue(
                       candidate,
-                      "Profile picture"
+                      "Profile picture",
                     )}
                   />
                 );
@@ -144,14 +151,14 @@ const candidatesByArea = candidates.reduce<Record<string, typeof candidates>>(
               {candidatesByArea[electoralAreaName]?.map((candidate) => {
                 const candidateFullName = getStringFieldValue(
                   candidate,
-                  "Full name"
+                  "Full name",
                 );
                 return (
                   <CandidateAvatar
                     candidateFullName={candidateFullName}
                     profilePictureUrl={getOptionalStringFieldValue(
                       candidate,
-                      "Profile picture"
+                      "Profile picture",
                     )}
                   />
                 );

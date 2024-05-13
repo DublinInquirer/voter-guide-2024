@@ -8,6 +8,7 @@ import {
   getStringFieldValue,
   getOptionalLookupFieldValue,
   getOptionalStringFieldValue,
+  getLookupFieldMultipleValues,
 } from "../../../airtable-api";
 import Layout from "../../../layouts/Layout.astro";
 import HeaderSection from "../../../components/HeaderSection.astro";
@@ -19,6 +20,12 @@ import CandidateAvatar from "../../../components/CandidateAvatar.astro";
 import { getAreasByLocalAuthority } from "../../../utils";
 
 export async function getStaticPaths() {
+  const candidateRecords = await airtableClient("Candidates")
+    .select({
+      view: "Grid view",
+    })
+    .all();
+
   const electoralAreas = await airtableClient("Areas")
     .select({
       view: "Grid view",
@@ -47,29 +54,41 @@ export async function getStaticPaths() {
       .filter(
         (questionRecord) =>
           getLookupFieldValue(questionRecord, "Local authority name") ===
-          getLookupFieldValue(electoralAreaRecord, "Local Authority Name")
+          getLookupFieldValue(electoralAreaRecord, "Local Authority Name"),
       )
       .map((questionRecord) => {
-        const answersForQuestion = answers.filter(
-          (answerRecord) =>
-            getOptionalLookupFieldValue(answerRecord, "Candidate area name") ===
-              electoralAreaName &&
-            answerRecord.get("Question")?.toString() === questionRecord.id
-        );
+        const answersForQuestion = answers.filter((answerRecord) => {
+          const candidateId = getLookupFieldValue(answerRecord, "Candidate");
+          const candidateRecord = candidateRecords.find(
+            ({ id }) => id === candidateId,
+          );
+          if (!candidateRecord) {
+            return false;
+          } else {
+            const candidateAreas = getLookupFieldMultipleValues(
+              candidateRecord,
+              "Areas",
+            );
+            return (
+              candidateAreas.includes(electoralAreaRecord.id) &&
+              answerRecord.get("Question")?.toString() === questionRecord.id
+            );
+          }
+        });
         return {
           text: getStringFieldValue(questionRecord, "Text"),
           answers: answersForQuestion.map((answerRecord) => {
             const candidateFullName = getLookupFieldValue(
               answerRecord,
-              "Candidate full name"
+              "Candidate full name",
             );
             const candidatePartyName = getLookupFieldValue(
               answerRecord,
-              "Candidate party name"
+              "Candidate party name",
             );
             const candidateProfilePictureUrl = getOptionalLookupFieldValue(
               answerRecord,
-              "Candidate profile picture"
+              "Candidate profile picture",
             );
             const answer = getOptionalStringFieldValue(answerRecord, "Text");
             return {
@@ -83,13 +102,13 @@ export async function getStaticPaths() {
       });
 
     const hasAnswers = questions.some((question) =>
-      question.answers.some((answer) => Boolean(answer.answer))
+      question.answers.some((answer) => Boolean(answer.answer)),
     );
 
     return {
       params: {
         localAuthority: lodash.kebabCase(
-          getLookupFieldValue(electoralAreaRecord, "Local Authority Name")
+          getLookupFieldValue(electoralAreaRecord, "Local Authority Name"),
         ),
         area: lodash.kebabCase(electoralAreaName),
       },

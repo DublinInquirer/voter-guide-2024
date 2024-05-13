@@ -1,10 +1,12 @@
 ---
 import lodash from "lodash";
 import { marked } from "marked";
+import type { FieldSet, Record as AirtableRecord } from "airtable";
 
 import {
   airtableClient,
   getLookupFieldValue,
+  getLookupFieldMultipleValues,
   getOptionalLookupFieldValue,
   getOptionalStringFieldValue,
   getStringFieldValue,
@@ -20,6 +22,12 @@ import CopyButton from "../../components/CopyButton.astro";
 
 export async function getStaticPaths() {
   const candidates = await airtableClient("Candidates")
+    .select({
+      view: "Grid view",
+    })
+    .all();
+
+  const areaRecords = await airtableClient("Areas")
     .select({
       view: "Grid view",
     })
@@ -41,27 +49,37 @@ export async function getStaticPaths() {
     const candidateFullName = getStringFieldValue(candidateRecord, "Full name");
     const candidateEmail = getOptionalStringFieldValue(
       candidateRecord,
-      "Email"
+      "Email",
     );
     const candidatePartyName = getLookupFieldValue(
       candidateRecord,
-      "Party name"
+      "Party name",
     );
-    const candidateAreaName = getLookupFieldValue(candidateRecord, "Area name");
+    const candidateAreaNames = getLookupFieldMultipleValues(
+      candidateRecord,
+      "Areas",
+    )
+      .map((areaId) => {
+        return areaRecords.find(({ id }) => areaId === id);
+      })
+      .filter((areaRecord): areaRecord is AirtableRecord<FieldSet> =>
+        Boolean(areaRecord),
+      )
+      .map((areaRecord) => getStringFieldValue(areaRecord, "Name"));
     const candidateAreaLocalAuthorityName = getLookupFieldValue(
       candidateRecord,
-      "Area local authority name"
+      "Area local authority name",
     );
     const candidateProfilePictureUrl = getOptionalStringFieldValue(
       candidateRecord,
-      "Profile picture"
+      "Profile picture",
     );
 
     const questions = questionRecords
       .filter(
         (questionRecord) =>
           getLookupFieldValue(questionRecord, "Local authority name") ===
-          getLookupFieldValue(candidateRecord, "Area local authority name")
+          getLookupFieldValue(candidateRecord, "Area local authority name"),
       )
       .map((questionRecord) => {
         const answerRecord = answerRecords.filter((answerRecord) => {
@@ -89,7 +107,7 @@ export async function getStaticPaths() {
         candidateFullName,
         candidateEmail,
         candidatePartyName,
-        candidateAreaName,
+        candidateAreaNames,
         candidateAreaLocalAuthorityName,
         candidateProfilePictureUrl,
         questions,
@@ -99,17 +117,17 @@ export async function getStaticPaths() {
   });
 }
 
-const organizationEmail = 'sam@dublininquirer.com'
+const organizationEmail = "sam@dublininquirer.com";
 
 function suggestedEmailMessage(area: string) {
-  return `I am a voter in ${area} and I am interested in your responses to the questions on Dublin Inquirer's local election voter guide.\n\nI think it'd be worth your time to write up and send in your answers to their eight questions. They published a similar voter guide for the 2019 locals, and more than 40,000 people read it.\n\nHopefully you got an email about this project from Dublin Inquirer deputy editor Sam Tranum in recent weeks, but if you haven't or you'd like more information or anything, he's cc'd here.`
+  return `I am a voter in ${area} and I am interested in your responses to the questions on Dublin Inquirer's local election voter guide.\n\nI think it'd be worth your time to write up and send in your answers to their eight questions. They published a similar voter guide for the 2019 locals, and more than 40,000 people read it.\n\nHopefully you got an email about this project from Dublin Inquirer deputy editor Sam Tranum in recent weeks, but if you haven't or you'd like more information or anything, he's cc'd here.`;
 }
 
 const {
   candidateFullName,
   candidateEmail,
   candidatePartyName,
-  candidateAreaName,
+  candidateAreaNames,
   candidateAreaLocalAuthorityName,
   candidateProfilePictureUrl,
   questions,
@@ -117,7 +135,7 @@ const {
 } = Astro.props;
 ---
 
-<Layout title={`${candidateFullName} | ${candidateAreaName}`}>
+<Layout title={`${candidateFullName} | ${candidateAreaNames.join(" / ")}`}>
   <HeaderSection>
     <div class="flex place-content-center">
       <CandidateAvatar
@@ -130,12 +148,19 @@ const {
     <HeaderSubtitle>
       {candidatePartyName} candidate <span class="whitespace-nowrap"
         >for
-        <Link
-          to={`areas/${lodash.kebabCase(candidateAreaLocalAuthorityName)}/${lodash.kebabCase(candidateAreaName)}`}
-        >
-          {candidateAreaName}
-        </Link></span
-      >
+        {
+          candidateAreaNames.map((areaName, index) => (
+            <>
+              <Link
+                to={`areas/${lodash.kebabCase(candidateAreaLocalAuthorityName)}/${lodash.kebabCase(areaName)}`}
+              >
+                {areaName}
+              </Link>
+              {index < candidateAreaNames.length - 1 ? " / " : null}
+            </>
+          ))
+        }
+      </span>
     </HeaderSubtitle>
   </HeaderSection>
   <main class="px-gutter max-w-screen-md mx-auto">
@@ -154,38 +179,42 @@ const {
         <>
           <p class="mb-4">
             {candidateFullName} hasn't yet responded to our questionnaire. If{" "}
-            {candidateAreaName} is your local electoral area, why not send them
-            an email reminding them to submit their responses?
+            {candidateAreaNames.join(" / ")} is your local electoral area, why
+            not send them an email reminding them to submit their responses?
           </p>
           <p>
             <a
               class="underline lg:hidden"
-              href={encodeURI(`mailto:${candidateEmail}?cc=sam@dublininquirer.com&subject=Dublin Inquirer questionnaire&body=${suggestedEmailMessage(candidateAreaName)}`)}
+              href={encodeURI(
+                `mailto:${candidateEmail}?cc=sam@dublininquirer.com&subject=Dublin Inquirer questionnaire&body=${suggestedEmailMessage(candidateAreaNames.join(" / "))}`,
+              )}
             >
               Email {candidateFullName}
             </a>
             <div class="hidden lg:block">
               <p class="pb-2">
-                Email them at <span class="font-mono font-bold">{candidateEmail}</span>
+                Email them at{" "}
+                <span class="font-mono font-bold">{candidateEmail}</span>
                 <CopyButton
                   id="candidate-email-copy-button"
                   text={candidateEmail!}
                 />
               </p>
               <p class="pb-2">
-                CC us so we can follow up with them at <span class="font-mono font-bold">{organizationEmail}</span>
+                CC us so we can follow up with them at{" "}
+                <span class="font-mono font-bold">{organizationEmail}</span>
                 <CopyButton
                   id="organization-email-copy-button"
                   text={organizationEmail}
                 />
               </p>
               <p class="pb-2">Suggested message:</p>
-              <!-- prettier-ignore -->
-              <textarea class="w-1/2 h-96 p-4 mb-2" readonly>{suggestedEmailMessage(candidateAreaName)}</textarea>
+              {/* prettier-ignore */}
+              <textarea class="w-1/2 h-96 p-4 mb-2" readonly>{suggestedEmailMessage(candidateAreaNames.join(' / '))}</textarea>
               <p>
                 <CopyButton
                   id="suggested-email-message-copy-button"
-                  text={suggestedEmailMessage(candidateAreaName)}
+                  text={suggestedEmailMessage(candidateAreaNames.join(" / "))}
                 />
               </p>
             </div>
