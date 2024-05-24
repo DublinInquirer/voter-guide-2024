@@ -40,7 +40,22 @@ const candidatesByArea = electoralAreas.reduce<
     )
     .filter((candidateRecord): candidateRecord is AirtableRecord<FieldSet> =>
       Boolean(candidateRecord),
-    );
+    )
+    .sort((a, b) => {
+      if (
+        getStringFieldValue(a, "Lastname") < getStringFieldValue(b, "Lastname")
+      ) {
+        return -1;
+      }
+
+      if (
+        getStringFieldValue(a, "Lastname") > getStringFieldValue(b, "Lastname")
+      ) {
+        return 1;
+      }
+
+      return 0;
+    });
   const areaName = getStringFieldValue(areaRecord, "Name");
   return {
     ...acc,

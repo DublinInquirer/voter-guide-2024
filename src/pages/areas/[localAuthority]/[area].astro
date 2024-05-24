@@ -77,27 +77,38 @@ export async function getStaticPaths() {
         });
         return {
           text: getStringFieldValue(questionRecord, "Text"),
-          answers: answersForQuestion.map((answerRecord) => {
-            const candidateFullName = getLookupFieldValue(
-              answerRecord,
-              "Candidate full name",
-            );
-            const candidatePartyName = getLookupFieldValue(
-              answerRecord,
-              "Candidate party name",
-            );
-            const candidateProfilePictureUrl = getOptionalLookupFieldValue(
-              answerRecord,
-              "Candidate profile picture",
-            );
-            const answer = getOptionalStringFieldValue(answerRecord, "Text");
-            return {
-              candidateFullName,
-              candidatePartyName,
-              candidateProfilePictureUrl,
-              answer,
-            };
-          }),
+          answers: answersForQuestion
+            .map((answerRecord) => {
+              const candidateId = getLookupFieldValue(
+                answerRecord,
+                "Candidate",
+              );
+              const candidateRecord = candidateRecords.find(
+                ({ id }) => id === candidateId,
+              );
+              const answer = getOptionalStringFieldValue(answerRecord, "Text");
+              return {
+                candidateRecord,
+                answer,
+              };
+            })
+            .sort((a, b) => {
+              if (
+                getStringFieldValue(a.candidateRecord!, "Lastname") <
+                getStringFieldValue(b.candidateRecord!, "Lastname")
+              ) {
+                return -1;
+              }
+
+              if (
+                getStringFieldValue(a.candidateRecord!, "Lastname") >
+                getStringFieldValue(b.candidateRecord!, "Lastname")
+              ) {
+                return 1;
+              }
+
+              return 0;
+            }),
         };
       });
 
@@ -146,33 +157,44 @@ const {
         questions.map((question) => (
           <>
             <QuestionText>{question.text}</QuestionText>
-            {question.answers.map((answer) => (
-              <>
-                <div class="flex">
-                  <div class="-ml-1 mr-2">
-                    <CandidateAvatar
-                      candidateFullName={answer.candidateFullName}
-                      profilePictureUrl={answer.candidateProfilePictureUrl}
-                      showName={false}
-                    />
+            {question.answers.map((answer) => {
+              const candidateFullName = answer.candidateRecord
+                ? getStringFieldValue(answer.candidateRecord, "Full name")
+                : "";
+              const candidateProfilePictureUrl = answer.candidateRecord
+                ? getStringFieldValue(answer.candidateRecord, "Profile picture")
+                : undefined;
+              const candidatePartyname = answer.candidateRecord
+                ? getLookupFieldValue(answer.candidateRecord, "Party name")
+                : "";
+              return (
+                <>
+                  <div class="flex">
+                    <div class="-ml-1 mr-2">
+                      <CandidateAvatar
+                        candidateFullName={candidateFullName}
+                        profilePictureUrl={candidateProfilePictureUrl}
+                        showName={false}
+                      />
+                    </div>
+                    <div class="self-center">
+                      <h3>
+                        <Link
+                          to={`candidates/${lodash.kebabCase(candidateFullName)}`}
+                        >
+                          {candidateFullName}
+                        </Link>
+                      </h3>
+                      <h3>{candidatePartyname}</h3>
+                    </div>
                   </div>
-                  <div class="self-center">
-                    <h3>
-                      <Link
-                        to={`candidates/${lodash.kebabCase(answer.candidateFullName)}`}
-                      >
-                        {answer.candidateFullName}
-                      </Link>
-                    </h3>
-                    <h3>{answer.candidatePartyName}</h3>
-                  </div>
-                </div>
-                <div
-                  class="pb-4 markdown"
-                  set:html={marked.parse(answer.answer ?? "")}
-                />
-              </>
-            ))}
+                  <div
+                    class="pb-4 markdown"
+                    set:html={marked.parse(answer.answer ?? "")}
+                  />
+                </>
+              );
+            })}
           </>
         ))
       ) : (
